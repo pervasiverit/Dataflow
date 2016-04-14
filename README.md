@@ -5,7 +5,10 @@ Data parallel programs using sequential building blocks
 Sequential Vertex is written by extending the AbstractVertex class and implementing the execute method.
 ```java
 class MyVertex extends AbstractVertex {
-      .....
+      @Override
+      public void execute(String line, Collector collector){
+      
+      }
 }
 ```
 
