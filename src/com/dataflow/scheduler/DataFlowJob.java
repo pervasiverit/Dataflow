@@ -24,12 +24,11 @@ public class DataFlowJob {
 	final private List<Callable<Void>> stageExecute = new ArrayList<>();
 
 	public DataFlowJob() {
-
 		stageList = new StageList();
 	}
 
 	public void setInputFormat(Class<? extends InputFormat> class1) {
-
+		
 	}
 
 	/**
@@ -40,9 +39,10 @@ public class DataFlowJob {
 		try {
 			List<Future<Void>> future = executor.invokeAll(stageExecute, 100, TimeUnit.SECONDS);
 			executor.shutdown();
-			future.stream().forEach(System.out::println);
+			//future.stream().forEach(System.out::println);
 			
-		} catch (InterruptedException e) {
+		} 
+		catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
@@ -60,7 +60,7 @@ public class DataFlowJob {
 	/**
 	 * Stage is effectively final. Do not change it
 	 * 
-	 * @param v
+	 * @param rootVertex
 	 * @param vList
 	 * @param stage
 	 * @return

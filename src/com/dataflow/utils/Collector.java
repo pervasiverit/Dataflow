@@ -3,7 +3,7 @@ package com.dataflow.utils;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Collector<T> implements Iterable<T>{
+public class Collector<T> implements Iterable<T> {
 	
 	private final T buffer[];
 	private final AtomicLong pointer = new AtomicLong();
@@ -13,9 +13,11 @@ public class Collector<T> implements Iterable<T>{
 
 		private Collector<T> collect;
 		private int current = 0;
+		
 		public  CollectorIterator(Collector<T> collect) {
 			this.collect = collect;
 		}
+		
 		@Override
 		public boolean hasNext() {
 			return current < collect.pointer.intValue();

@@ -1,7 +1,7 @@
 # Dataflow
-Data parallel programs using sequential building blocks
+Write Data parallel programs using sequential building blocks.
 
-## Writing a Vertex
+### Writing a Vertex
 Sequential Vertex is written by extending the AbstractVertex class and override the execute method.
 ```java
 class MyVertex extends AbstractVertex {
@@ -11,4 +11,5 @@ class MyVertex extends AbstractVertex {
       }
 }
 ```
+
 
