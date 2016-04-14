@@ -14,10 +14,11 @@ public class Main {
 		job.setInputFormat(TextFileInputFormat.class);
 		job.setInputPath("common.conf");
 		DataflowBuilder builder = new DataflowBuilder();
-		VertexList v1 = builder.createVertexSet(Hello.class, 3);
-		VertexList v2 = builder.createVertexSet(Multiple.class, 3);
+		VertexList v1 = builder.createVertexSet(Hello.class, 2);
+		VertexList v2 = builder.createVertexSet(Multiple.class, 2);
+		VertexList v3 = builder.createVertexSet(Multiple.class, 1);
+		
 		builder.mapPointWise(v1, v2, ConnectorType.FILE);
-		//job.addToJobQueue(io);
 		job.start(v1);
 		job.run();
 	}

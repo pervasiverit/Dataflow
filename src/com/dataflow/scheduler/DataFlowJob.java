@@ -38,10 +38,18 @@ public class DataFlowJob {
 	}
 	
 
+	/**
+	 * Set Input Format class name
+	 * @return		InputFormat
+	 */
 	public void setInputFormat(Class<? extends InputFormat> inf) {
 		this.inputFormat = inf;
 	}
 	
+	/**
+	 * Input Format for the file that needs  to be read.
+	 * @return		InputFormat
+	 */
 	public InputFormat getInputFormat(){
 		return instanceOfInputFormat;
 	}
