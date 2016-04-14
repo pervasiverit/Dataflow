@@ -4,33 +4,47 @@ import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.dataflow.io.InputFormat;
 import com.dataflow.utils.Collector;
 import com.dataflow.vertex.AbstractVertex;
 
 public class Stage {
 
 	private Queue<AbstractVertex> queue;
+	private DataFlowJob job;
 	
-	public Stage(){
+	public Stage(DataFlowJob job){
 		queue = new ConcurrentLinkedQueue<>();
+		this.job = job;
 	}
 	
 	public void addVertexList(final AbstractVertex v){
 		queue.add(v);
 	}
 
-	public void run() throws IOException {
+	public <T> void run() throws IOException {
+		InputFormat inf =job.getInputFormat();
+		inf.open();
+		String line = "";
+		Collector<T> collector = new Collector<>();
 		AbstractVertex abs = queue.poll();
 		final int size = queue.size();
-		Collector<String> collect = new Collector<>();
-		abs.execute("", collect);
+		while((line=(String) inf.next() )!=null){
+			
+			abs.execute(line, collector);
+		}
 		for (int i = 0; i < size; ++i) {
-			Collector<String> temp = new Collector<>();
+			Collector<T> temp = new Collector<>();
 			AbstractVertex mapSide = queue.poll();
-			for (String s : collect) {
+			for (T s : collector) {
 				mapSide.execute(s, temp);
 			}
-			collect = temp;
+			collector = temp;
 		}
+	}
+	
+	@Override
+	public String toString(){
+		return queue.toString();
 	}
 }

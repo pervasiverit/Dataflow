@@ -1,4 +1,3 @@
-import java.io.File;
 import java.io.IOException;
 
 import com.dataflow.builder.BuilderException;
@@ -13,12 +12,13 @@ public class Main {
 	public static void main(String [] args) throws BuilderException, IOException {
 		DataFlowJob job = new DataFlowJob();
 		job.setInputFormat(TextFileInputFormat.class);
+		job.setInputPath("common.conf");
 		DataflowBuilder builder = new DataflowBuilder();
-		VertexList io = builder.createInputVertex(3, new File("common.conf"), TextFileInputFormat.class);
-		VertexList v1 = builder.createVertexSet(new Hello(), 3);
-		builder.mapPointWise(io, v1, ConnectorType.FILE);
+		VertexList v1 = builder.createVertexSet(Hello.class, 3);
+		VertexList v2 = builder.createVertexSet(Multiple.class, 3);
+		builder.mapPointWise(v1, v2, ConnectorType.FILE);
 		//job.addToJobQueue(io);
-		job.start(io);
+		job.start(v1);
 		job.run();
 	}
 }

@@ -9,7 +9,7 @@ public class EdgeList extends ArrayList<Edge>{
 			add(new Edge());
 		}
 	}
-
+	
 	public void addNumberOfEdges(final int nbrDest) {
 		for(int i=0; i< nbrDest; i++){
 			add(new Edge());

@@ -30,18 +30,18 @@ public final class DataflowBuilder {
 				AbstractVertex inputVertex = source.get(i);
 				final int outputs = inputVertex.getOutput().size();
 				inputVertex.getOutput().addEdges(1);
-				inputVertex.connectOutput(outputs, outputVertex, inputs + i, type);
+				inputVertex.connectOutput(outputs, outputVertex, inputs, type);
 			}
 			
 		} else if (nbrInputs == 1) {
 			AbstractVertex inputVertex = source.get(0);
 			final int outputs = inputVertex.getOutput().size();
-			inputVertex.getOutput().addEdges(nbrOutputs);
+			inputVertex.getOutput().addEdges(outputs + nbrOutputs);
 			for (int i = 0; i < nbrOutputs; i++) {
 				AbstractVertex outputVertex = destination.get(i);
 				final int inputs = outputVertex.getInput().size();
-				outputVertex.getInput().addEdges(1);
-				outputVertex.connectOutput(outputs + i, outputVertex, inputs, type);
+				outputVertex.getInput().addEdges(inputs + 1);
+				inputVertex.connectOutput(outputs + i, outputVertex, inputs, type);
 			}
 
 		} else if (nbrInputs == nbrOutputs) {
@@ -85,6 +85,23 @@ public final class DataflowBuilder {
 		}
 		return output;
 	}
+	
+	public VertexList createVertexSet(Class<? extends AbstractVertex> prototype, final int copies) {
+		
+		VertexList output = new VertexList();
+		for (int i = 0; i < copies; i++) {
+			AbstractVertex vertex=null;
+			try {
+				vertex = prototype.newInstance();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+			output.add(vertex);
+		}
+		return output;
+	}
 
 	
 	public VertexList createInputVertex(int n, File file, Class<? extends InputFormat<?>> format) {
@@ -105,7 +122,7 @@ public final class DataflowBuilder {
 	}
 	
 	
-	public void run(VertexList input, VertexList output) throws IOException{
+	public void run(VertexList input, VertexList output) throws IOException {
 		Collector<String> collect = new Collector<>();
 		InputVertex v = (InputVertex)input.get(0);
 		try {
