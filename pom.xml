@@ -3,6 +3,29 @@
   <groupId>DataFlow</groupId>
   <artifactId>DataFlow</artifactId>
   <version>0.0.1</version>
+  
+  <dependencies>
+  
+ <dependency>
+	<groupId>com.typesafe.akka</groupId>
+	<artifactId>akka-kernel_2.11</artifactId>
+	<version>2.3.2</version>
+</dependency>
+
+  
+<dependency>
+	<groupId>com.typesafe.akka</groupId>
+	<artifactId>akka-remote_2.11</artifactId>
+	<version>2.4.3</version>
+</dependency>
+
+<dependency>
+	<groupId>com.typesafe.akka</groupId>
+	<artifactId>akka-actor_2.11</artifactId>
+	<version>2.4.3</version>
+</dependency>
+
+	</dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
