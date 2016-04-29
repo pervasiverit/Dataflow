@@ -36,6 +36,7 @@ public class JobController extends UntypedActor {
 	public void handle(PointWiseStage stage) {
 		final String jobID = stage.getJobId();
 		stages.add(stage);
+		System.out.println(stage);
 	}
 
 	public void handle(CrossProductStage stage) {
@@ -73,6 +74,10 @@ public class JobController extends UntypedActor {
 	public WorkToBeDone getWorkToBeDone(CrossProductStage stage, WorkRequest work) {
 		String path = completedPointWiseTasks.get(work.getActorRef());
 		return new WorkToBeDone(getSelf(), stages.poll(),Optional.of(path));
+	}
+	
+	public void handle(String message){
+		System.out.println(message);
 	}
 
 	/**

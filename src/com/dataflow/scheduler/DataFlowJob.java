@@ -10,6 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.dataflow.actors.JobController;
 import com.dataflow.actors.MapActor;
 import com.dataflow.edges.Edge;
 import com.dataflow.io.InputFormat;
@@ -102,9 +103,9 @@ public class DataFlowJob {
 		}
 		
 		ActorSystem system = ActorSystem.create();
-		ActorRef ref = system.actorOf(Props.create(MapActor.class)
-				.withDispatcher("control-aware-dispatcher")
-				.withRouter(new RoundRobinPool(5)));
+		ActorRef ref = system.actorOf(Props.create(JobController.class));
+				//.withDispatcher("control-aware-dispatcher")
+				//.withRouter(new RoundRobinPool(5)));
 		for(int i=0 ;i < 2; i++){
 			ref.tell(stageList.get(i), ActorRef.noSender());
 		}

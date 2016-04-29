@@ -18,8 +18,8 @@ public class Main {
 		job.setOutputPath("out.txt");
 		
 		DataflowBuilder builder = new DataflowBuilder();
-		VertexList v1 = builder.createVertexSet(Hello.class, 2);
-		VertexList v2 = builder.createVertexSet(Multiple.class, 2);
+		VertexList v1 = builder.createVertexSet(Hello.class, 1);
+		VertexList v2 = builder.createVertexSet(Multiple.class, 1);
 		//VertexList v3 = builder.createVertexSet(Sum.class, 1);
 		
 		builder.mapPointWise(v1, v2, ConnectorType.FILE);

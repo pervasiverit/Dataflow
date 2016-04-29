@@ -5,10 +5,21 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 
 import com.dataflow.scheduler.Stage;
 
+import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 
 public class MapActor extends UntypedActor{
-
+	private boolean isRunning;
+	private final ActorRef jobManager;
+	
+	public MapActor(final ActorRef jobManager){
+		this.jobManager = jobManager;
+	}
+	
+	@Override
+	public void preStart() throws Exception {
+		
+	}
 	
 	@Override
 	public void onReceive(Object message) throws Exception {

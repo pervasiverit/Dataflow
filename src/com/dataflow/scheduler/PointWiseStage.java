@@ -56,5 +56,11 @@ public class PointWiseStage extends Stage {
 		String path = collector.finish();
 		
 	}
+	
+	
+	@Override
+	public String toString() {
+		return tempPath;
+	}
 
 }
