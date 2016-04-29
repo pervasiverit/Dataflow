@@ -2,9 +2,11 @@ package com.dataflow.vertex;
 
 import java.io.IOException;
 
+import com.dataflow.elements.StringElement;
+import com.dataflow.io.Collector;
 import com.dataflow.io.InputFormat;
-import com.dataflow.utils.Collector;
 
+@SuppressWarnings({"rawtypes","unchecked"})
 public class InputVertex extends AbstractVertex<String>{
 
 	private static final long serialVersionUID = 7171383548464323992L;
@@ -25,8 +27,7 @@ public class InputVertex extends AbstractVertex<String>{
 		inputFormat.open();
 		String str= "";
 		while((str = (String) inputFormat.next())!=null){
-			System.out.println(str +" "+ Thread.currentThread());
-			collector.add(str);
+			collector.add(new StringElement(str));
 		}
 		inputFormat.close();
 	}

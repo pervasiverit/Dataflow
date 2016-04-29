@@ -6,8 +6,8 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.lang.reflect.Constructor;
 
+import com.dataflow.io.Collector;
 import com.dataflow.io.InputFormat;
-import com.dataflow.utils.Collector;
 import com.dataflow.utils.ConnectorType;
 import com.dataflow.vertex.AbstractVertex;
 import com.dataflow.vertex.InputVertex;
@@ -24,13 +24,13 @@ public final class DataflowBuilder {
 		if (nbrOutputs == 1) {
 			AbstractVertex outputVertex = destination.get(0);
 			final int inputs = outputVertex.getInput().size();
-			outputVertex.getInput().addEdges(nbrInputs);
+			outputVertex.getInput().addEdges(inputs + nbrInputs);
 			
 			for (int i = 0; i < nbrInputs; i++) {
 				AbstractVertex inputVertex = source.get(i);
 				final int outputs = inputVertex.getOutput().size();
 				inputVertex.getOutput().addEdges(1);
-				inputVertex.connectOutput(outputs, outputVertex, inputs, type);
+				inputVertex.connectOutput(outputs, outputVertex, inputs + i, type);
 			}
 			
 		} else if (nbrInputs == 1) {
@@ -50,8 +50,8 @@ public final class DataflowBuilder {
 				AbstractVertex outputVertex = destination.get(i);
 				final int outputs = inputVertex.getOutput().size();
 				final int inputs = outputVertex.getInput().size();
-				inputVertex.getOutput().addEdges(1);
-				outputVertex.getInput().addEdges(1);
+				inputVertex.getOutput().addEdges(outputs + 1);
+				outputVertex.getInput().addEdges(inputs + 1);
 				inputVertex.connectOutput(outputs, outputVertex, inputs, type);
 			}
 		} else {
@@ -64,15 +64,16 @@ public final class DataflowBuilder {
 		final int nbrDest = destination.size();
 
 		for (int i = 0; i < nbrSrc; i++) {
-			source.get(i).getOutput().addNumberOfEdges(nbrDest);
+			source.get(i).getOutput().setNumberOfEdges(nbrDest);
 		}
 
 		for (int i = 0; i < nbrDest; i++) {
 			AbstractVertex outputVertex = destination.get(i);
 			final int inputs = outputVertex.getInput().size();
-			outputVertex.getInput().addEdges(inputs + nbrSrc);
+			outputVertex.getInput().addEdges(nbrSrc);
 			for (int j = 0; j < nbrSrc; j++) {
-				source.get(j).connectOutput(i, outputVertex, inputs + j, type);
+				AbstractVertex inp = source.get(j);
+				inp.connectOutput(i, outputVertex, i, type);
 			}
 		}
 	}
@@ -119,22 +120,5 @@ public final class DataflowBuilder {
 		}
 		AbstractVertex prototype = new InputVertex(inputFormat);
 		return createVertexSet(prototype, n);
-	}
-	
-	
-	public void run(VertexList input, VertexList output) throws IOException {
-		Collector<String> collect = new Collector<>();
-		InputVertex v = (InputVertex)input.get(0);
-		try {
-			v.execute("", collect);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		for(String str: collect){
-			output.get(0).execute(str, new Collector<>());
-		}
-	}
-	
-	
+	}	
 }

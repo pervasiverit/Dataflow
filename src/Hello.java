@@ -1,6 +1,8 @@
 import java.io.IOException;
+import java.math.BigInteger;
 
-import com.dataflow.utils.Collector;
+import com.dataflow.elements.BigIntegerElement;
+import com.dataflow.io.Collector;
 import com.dataflow.vertex.AbstractVertex;
 
 public class Hello extends AbstractVertex<String>{
@@ -9,7 +11,6 @@ public class Hello extends AbstractVertex<String>{
 
 	@Override
 	public void execute(String line, Collector collector) throws IOException {
-		System.out.println(line.length());
-		collector.add(line.length());
+		collector.add(new BigIntegerElement(BigInteger.valueOf(line.length())));
 	}
 }

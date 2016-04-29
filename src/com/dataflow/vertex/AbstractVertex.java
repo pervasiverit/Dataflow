@@ -12,15 +12,17 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import com.dataflow.edges.Edge;
 import com.dataflow.edges.EdgeList;
-import com.dataflow.utils.Collector;
+import com.dataflow.io.Collector;
 import com.dataflow.utils.ConnectorType;
 
 public abstract class AbstractVertex<T> implements Serializable {
 
 	private static final long serialVersionUID = 7167879471388118185L;
-
+	public static enum VertexType {
+		POINT_WISE, SHUFFLE
+	}
 	private static int COUNT= 0;
-	
+	private VertexType type = VertexType.POINT_WISE;
 	protected String vertexId;
 
 	protected transient String name;
@@ -35,6 +37,10 @@ public abstract class AbstractVertex<T> implements Serializable {
 		vertexId = "Abstract Vertex " + this.getClass().toString()+ " "+this.hashCode();
 		machine = "glados.cs.rit.edu";
 		
+	}
+	
+	public VertexType getVertexType(){
+		return type;
 	}
 
 	private VertexInfo vertexInfo;
@@ -58,16 +64,21 @@ public abstract class AbstractVertex<T> implements Serializable {
 			ConnectorType type) {
 
 		Edge edge = new Edge(outputVertex, remotePort, type);
-		outputEdges.set(localPort, edge);
+		outputEdges.setEdge(localPort, edge);
 		edge = new Edge(this, localPort, type);
-		outputVertex.getInput().set(remotePort, edge);
+		outputVertex.getInput().setEdge(remotePort, edge);
+		outputVertex.type = VertexType.SHUFFLE;
 	}
 
 	@Override
 	public String toString() {
 		return vertexId;
 	}
-
+	
+	public void close(Collector collector){
+		
+	}
+	
 	// Dependency on the commons-lang library.
 	public AbstractVertex makeClone()  {
 		byte [] b = SerializationUtils.serialize(this);

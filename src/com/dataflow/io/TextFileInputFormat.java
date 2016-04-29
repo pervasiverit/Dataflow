@@ -17,7 +17,6 @@ public class TextFileInputFormat implements InputFormat<String> {
 	private File file;
 	private BufferedReader stream;
 	private FileReader fis;
-
 	// for collecting stats.
 	private long numRecords;
 
@@ -81,6 +80,11 @@ public class TextFileInputFormat implements InputFormat<String> {
 		return "Total number of records is " + numRecords;
 	}
 
+	/**
+	 * Unit Test. To test threading.
+	 * @param args
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws IOException {
 		File file = new File("common.conf");
 		TextFileInputFormat text = new TextFileInputFormat(file);

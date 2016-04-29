@@ -1,50 +1,52 @@
 package com.dataflow.scheduler;
-
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.dataflow.io.InputFormat;
-import com.dataflow.utils.Collector;
 import com.dataflow.vertex.AbstractVertex;
 
-public class Stage {
-
-	private Queue<AbstractVertex> queue;
-	private DataFlowJob job;
+/***
+ * TODO: Very bad idea to supress "unchecked" exceptions.
+ * Fix it when time ASAP.
+ * @author sumanbharadwaj
+ *
+ */
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public abstract class Stage implements Serializable {
+	private static final long serialVersionUID = 4123829129686802172L;
+	protected Queue<AbstractVertex> queue;
+	protected String jobId;
 	
-	public Stage(DataFlowJob job){
-		queue = new ConcurrentLinkedQueue<>();
-		this.job = job;
+	protected String taskId = UUID.randomUUID().toString();
+	
+	
+	public String getTaskId(){
+		return taskId;
 	}
 	
-	public void addVertexList(final AbstractVertex v){
+	public String getJobId(){
+		return jobId;
+	}
+	
+	final protected transient DataFlowJob job;
+
+	public Stage(DataFlowJob job) {
+		queue = new ConcurrentLinkedQueue<>();
+		this.job = job;
+		this.jobId = job.getJobId();
+	}
+
+	public void addVertexList(final AbstractVertex v) {
 		queue.add(v);
 	}
 
-	public <T> void run() throws IOException {
-		InputFormat inf =job.getInputFormat();
-		inf.open();
-		String line = "";
-		Collector<T> collector = new Collector<>();
-		AbstractVertex abs = queue.poll();
-		final int size = queue.size();
-		while((line=(String) inf.next() )!=null){
-			
-			abs.execute(line, collector);
-		}
-		for (int i = 0; i < size; ++i) {
-			Collector<T> temp = new Collector<>();
-			AbstractVertex mapSide = queue.poll();
-			for (T s : collector) {
-				mapSide.execute(s, temp);
-			}
-			collector = temp;
-		}
-	}
+	public abstract <T> void run() throws IOException;
 	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return queue.toString();
 	}
 }
