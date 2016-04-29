@@ -10,7 +10,7 @@ import com.dataflow.vertex.VertexList;
 
 public class Main {
 
-	public static void main(String [] args) throws BuilderException, IOException {
+	/*public static void main(String [] args) throws BuilderException, IOException {
 		DataFlowJob job = new DataFlowJob();
 		job.setInputFormat(TextFileInputFormat.class);
 		job.setOutputFormat(TextFileOutputFormat.class);
@@ -26,5 +26,5 @@ public class Main {
 		//builder.crossProduct(v2, v3, ConnectorType.FILE);
 		job.setRoot(v1);
 		job.run();
-	}
+	}*/
 }
