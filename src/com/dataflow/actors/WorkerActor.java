@@ -1,32 +1,31 @@
 package com.dataflow.actors;
 import java.io.IOException;
+import java.util.concurrent.ScheduledFuture;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
 
-import com.dataflow.scheduler.Stage;
+import com.dataflow.messages.WorkRequest;
+import com.dataflow.scheduler.PointWiseStage;
 
-import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 
-public class MapActor extends UntypedActor{
+public class WorkerActor extends UntypedActor{
 	private boolean isRunning;
-	private final ActorRef jobManager;
+	private ScheduledFuture scheduledFuture;
 	
-	public MapActor(final ActorRef jobManager){
-		this.jobManager = jobManager;
+	public WorkerActor(){
 	}
-	
-	@Override
-	public void preStart() throws Exception {
-		
-	}
-	
+
 	@Override
 	public void onReceive(Object message) throws Exception {
 		MethodUtils.invokeMethod(this, "handler",message);
 	}
 	
-	public void handler(Stage stg){
+	public void handler(WorkRequest request){
+		getSender().tell(request, getSelf());
+	}
+	
+	public void handler(PointWiseStage stg){
 		try {
 			stg.run();
 		} catch (IOException e) {

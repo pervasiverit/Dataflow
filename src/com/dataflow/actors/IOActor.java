@@ -22,7 +22,7 @@ public class IOActor extends UntypedActor {
 
 	@Override
 	public void preStart() throws Exception {
-		ref = getContext().actorOf(Props.create(MapActor.class)
+		ref = getContext().actorOf(Props.create(WorkerActor.class)
 				.withRouter(new RoundRobinPool(poolSize)));
 	}
 

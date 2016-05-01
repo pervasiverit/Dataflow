@@ -5,9 +5,9 @@ import java.util.Optional;
 import akka.actor.ActorRef;
 
 public class MapWorkComplete extends WorkComplete{
-
-	public MapWorkComplete(ActorRef actorRef, Optional<String> path) {
-		super(actorRef, path);
+	
+	public MapWorkComplete(final ActorRef actorRef, final Optional<String> path, final String taskId) {
+		super(actorRef, path, taskId);
 	}
 
 }

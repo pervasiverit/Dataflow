@@ -3,27 +3,18 @@ package com.dataflow.scheduler;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.dataflow.actors.JobController;
-import com.dataflow.actors.MapActor;
 import com.dataflow.edges.Edge;
 import com.dataflow.io.InputFormat;
 import com.dataflow.io.OutputFormat;
 import com.dataflow.vertex.AbstractVertex;
-import com.dataflow.vertex.AbstractVertex.VertexType;
-import com.dataflow.vertex.InputVertex;
 import com.dataflow.vertex.VertexList;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.routing.RoundRobinPool;
 
 /**
  * Define the job class. If the job
@@ -106,10 +97,7 @@ public class DataFlowJob {
 		ActorRef ref = system.actorOf(Props.create(JobController.class));
 				//.withDispatcher("control-aware-dispatcher")
 				//.withRouter(new RoundRobinPool(5)));
-		for(int i=0 ;i < 2; i++){
-			ref.tell(stageList.get(i), ActorRef.noSender());
-		}
-		
+		ref.tell(stageList, ActorRef.noSender());
 		System.out.println("Finished..");
 		try {
 			Thread.sleep(1000);
