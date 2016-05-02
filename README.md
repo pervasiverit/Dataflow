@@ -35,4 +35,4 @@ public class Main {
 * In a driver program, we specify how we read the file using TextFileInputFormat.class
 
 ### Architecture
-![Architecture](https://drive.google.com/open?id=0B2jG81b2klfnOW1helVyNktEczg)
+![Architecture](https://www.dropbox.com/s/y8x1rcptw2muks4/Screen%20Shot%202016-05-02%20at%205.18.28%20AM.png?dl=0)
