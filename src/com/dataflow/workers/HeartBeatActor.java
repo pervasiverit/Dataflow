@@ -1,8 +1,9 @@
 package com.dataflow.workers;
 
-import java.util.List;
+import java.util.Optional;
 
 import com.dataflow.messages.Message;
+import com.dataflow.messages.WorkRequest;
 import com.typesafe.config.Config;
 
 import akka.actor.ActorIdentity;
@@ -18,12 +19,12 @@ public class HeartBeatActor extends UntypedActor{
 	static public class HBMessage implements Message{
 
 		private static final long serialVersionUID = 1L;
-		public List<ActorRef> workers;
+		public Optional<WorkRequest> workReq;
 		
 		public HBMessage(){}
 		
-		public HBMessage(List<ActorRef> workers) {
-			this.workers = workers;
+		public HBMessage(Optional<WorkRequest> request) {
+			this.workReq = request;
 		}
 	}
 	

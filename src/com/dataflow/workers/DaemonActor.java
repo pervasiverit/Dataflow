@@ -1,5 +1,6 @@
 package com.dataflow.workers;
 
+import com.dataflow.messages.WorkToBeDone;
 import com.typesafe.config.Config;
 
 import akka.actor.ActorRef;
@@ -25,7 +26,10 @@ public class DaemonActor extends UntypedActor{
 	
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		manager.forward(msg, getContext());
+		if(msg instanceof WorkToBeDone)
+			manager.forward(msg, getContext());
+		else 
+			unhandled(msg);
 	}
 
 }
