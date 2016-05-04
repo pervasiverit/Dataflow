@@ -5,6 +5,7 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.dataflow.io.InputFormat;
 import com.dataflow.vertex.AbstractVertex;
 
 /***
@@ -20,7 +21,7 @@ public abstract class Stage implements Serializable {
 	protected String jobId;
 	
 	protected String taskId = UUID.randomUUID().toString();
-	
+	final InputFormat inputFormat;
 	
 	public String getTaskId(){
 		return taskId;
@@ -30,12 +31,14 @@ public abstract class Stage implements Serializable {
 		return jobId;
 	}
 	
-	final protected transient DataFlowJob job;
-
-	public Stage(DataFlowJob job) {
+	public Stage(final InputFormat inputFormat, final String jobId) {
 		queue = new ConcurrentLinkedQueue<>();
-		this.job = job;
-		this.jobId = job.getJobId();
+		this.jobId = jobId;
+		this.inputFormat = inputFormat;
+	}
+	
+	protected InputFormat getInputFormat(){
+		return inputFormat;
 	}
 
 	public void addVertexList(final AbstractVertex v) {

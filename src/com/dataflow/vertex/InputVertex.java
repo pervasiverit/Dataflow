@@ -23,7 +23,6 @@ public class InputVertex extends AbstractVertex<String>{
 	
 	@Override
 	public void execute(final String Line, final Collector collector) throws IOException {
-		
 		inputFormat.open();
 		String str= "";
 		while((str = (String) inputFormat.next())!=null){

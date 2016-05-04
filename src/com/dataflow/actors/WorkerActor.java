@@ -18,14 +18,15 @@ public class WorkerActor extends UntypedActor{
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		MethodUtils.invokeMethod(this, "handler",message);
+		MethodUtils.invokeMethod(this, "handle",message);
 	}
 	
-	public void handler(WorkRequest request){
+	public void handle(WorkRequest request){
 		getSender().tell(request, getSelf());
 	}
 	
-	public void handler(PointWiseStage stg){
+	public void handle(PointWiseStage stg){
+		System.out.println(" Point wise stage received ...");
 		try {
 			stg.run();
 		} catch (IOException e) {

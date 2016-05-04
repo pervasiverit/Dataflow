@@ -17,19 +17,19 @@ import com.dataflow.vertex.AbstractVertex;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class PointWiseStage extends Stage {
 
-	private String tempPath = "tmp" + File.separator + job.getJobId() + File.separator + getTaskId();
+	private String tempPath = "tmp" + File.separator + getJobId() + File.separator + getTaskId();
 
-	public PointWiseStage(DataFlowJob job) {
-		super(job);
+	public PointWiseStage(InputFormat inputFormat, String jobId) {
+		super(inputFormat, jobId);
 	}
 
 	private static final long serialVersionUID = -6401487707823445353L;
 
 	public <T> void run() throws IOException {
-		if (job.getInputFormat() == null)
+		if (getInputFormat() == null)
 			throw new FileNotFoundException("Please provide file inputformat");
 
-		InputFormat inf = job.getInputFormat();
+		InputFormat inf = getInputFormat();
 		Collector<Element> collector = new Collector<>(tempPath);
 		FileUtils.forceMkdir(new File(tempPath));
 		if (inf != null) {
@@ -60,6 +60,11 @@ public class PointWiseStage extends Stage {
 	
 	@Override
 	public String toString() {
+		return tempPath;
+	}
+
+
+	public String getPath() {
 		return tempPath;
 	}
 

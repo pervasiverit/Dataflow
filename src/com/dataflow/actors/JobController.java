@@ -40,8 +40,8 @@ public class JobController extends UntypedPersistentActor {
 	 * @param message
 	 */
 	public void handle(RegisterWorker message) {
-		workers.put(message.getActorRef(), new WorkerState(getSender(), Idle.instance));
-		System.out.println("Message..");
+		workers.put(message.getActorRef(), new WorkerState(message.getActorRef(), Idle.instance));
+		System.out.println("Register Worker Message..");
 		if (workStatus.hasWork()) {
 			message.getActorRef().tell(new WorkIsReady(getSelf()), getSelf());
 		}
@@ -54,7 +54,9 @@ public class JobController extends UntypedPersistentActor {
 	 */
 	public void handle(WorkRequest work) throws Exception {
 		if (workStatus.hasWork()) {
+			System.out.println("Received a work Request Message..");
 			final ActorRef ref = work.getActorRef();
+			//final int coresFree = work.getWorkerCount();
 			final WorkerState state = workers.get(ref);
 			@SuppressWarnings("unchecked")
 			WorkToBeDone toBeDone = (WorkToBeDone) MethodUtils.invokeMethod(this, "getWorkToBeDone", workStatus.next(),
@@ -65,12 +67,13 @@ public class JobController extends UntypedPersistentActor {
 					workStatus = workStatus.getInstance(workStatus, workToBeDone);
 					String taskId = toBeDone.getStage().getTaskId();
 					workers.put(ref, new WorkerState(getSender(), new Busy(taskId)));
-					ref.tell(toBeDone, getSelf());
+					System.out.println(ref + " Sending a work to be done message..");
+					ref.tell(workToBeDone, getSelf());
 				}
 			});
-			ref.tell(toBeDone, ActorRef.noSender());
 		}
 	}
+	
 
 	/**
 	 * Return an instance of the work to be done. put the stage inside the work
@@ -115,6 +118,7 @@ public class JobController extends UntypedPersistentActor {
 	 */
 	public void handle(PointWiseStage stage) {
 		final String jobID = stage.getJobId();
+		System.out.println("Adding Point wise stage..");
 		persist(stage, new Procedure<Stage>() {
 			@Override
 			public void apply(Stage stage) throws Exception {
@@ -158,13 +162,13 @@ public class JobController extends UntypedPersistentActor {
 
 	@Override
 	public String persistenceId() {
-		// TODO Auto-generated method stub
 		return "JobController";
 	}
 
 	@Override
 	public void onReceiveCommand(Object message) throws Exception {
 		MethodUtils.invokeMethod(this, HANDLER, message);
+		MethodUtils.invokeMethod(object, methodName,)
 
 	}
 

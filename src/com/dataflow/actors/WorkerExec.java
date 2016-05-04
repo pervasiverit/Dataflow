@@ -11,17 +11,19 @@ import com.dataflow.messages.WorkRequest;
 import com.dataflow.messages.WorkToBeDone;
 
 import akka.actor.ActorRef;
+import akka.actor.ActorRefFactory;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.japi.Function;
 import akka.japi.Procedure;
 
 public class WorkerExec extends UntypedActor {
 
 	private final ActorRef worker;
 	private final ActorRef jobManager;
-
-	public WorkerExec(final Props worker , ActorRef jobManager) {
-		this.worker = getContext().watch(getContext().actorOf(worker, "exec"));
+	
+	public WorkerExec(final Function<ActorRefFactory, ActorRef> f , ActorRef jobManager) throws Exception {
+		this.worker = f.apply(context());
 		this.jobManager = jobManager;
 	}
 
@@ -32,7 +34,6 @@ public class WorkerExec extends UntypedActor {
 
 	private final Procedure<Object> idle = new Procedure<Object>() {
 		public void apply(Object message) throws Exception {
-			System.out.println(message.getClass());
 			MethodUtils.invokeMethod(this, "handle", message);
 		}
 		
@@ -40,8 +41,8 @@ public class WorkerExec extends UntypedActor {
 			sendToMaster(new RegisterWorker(getSelf()));
 		}
 		
-		public void handle(WorkToBeDone stage) {
-			worker.tell(stage, getSelf());
+		public void handle(WorkToBeDone worktoBeDone) {
+			worker.tell(worktoBeDone.getStage(), getSelf());
 			getContext().become(working);
 		}
 
@@ -66,6 +67,8 @@ public class WorkerExec extends UntypedActor {
 
 	private void sendToMaster(Object message) {
 		if(message instanceof RegisterWorker){
+			jobManager.tell(message, getSelf());
+		}else if(message instanceof WorkRequest){
 			jobManager.tell(message, getSelf());
 		}else{
 			getSender().tell(message, getSelf());

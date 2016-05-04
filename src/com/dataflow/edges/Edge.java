@@ -1,9 +1,11 @@
 package com.dataflow.edges;
 
+import java.io.Serializable;
+
 import com.dataflow.utils.ConnectorType;
 import com.dataflow.vertex.AbstractVertex;
 
-public class Edge {
+public class Edge implements Serializable{
 
 	private AbstractVertex remoteVertex;
 	private final int port;
