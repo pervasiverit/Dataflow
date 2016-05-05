@@ -11,11 +11,32 @@
 	<artifactId>akka-kernel_2.11</artifactId>
 	<version>2.3.2</version>
 </dependency>
+<dependency>
+	<groupId>com.typesafe.akka</groupId>
+	<artifactId>akka-persistence_2.11</artifactId>
+	<version>2.4.4</version>
+</dependency>
+<dependency>
+  <groupId>org.iq80.leveldb</groupId>
+  <artifactId>leveldb</artifactId>
+  <version>0.7</version>
+</dependency>
+<dependency>
+  <groupId>org.fusesource.leveldbjni</groupId>
+  <artifactId>leveldbjni-all</artifactId>
+  <version>1.8</version>
+</dependency>
 
 <dependency>
 	<groupId>commons-io</groupId>
 	<artifactId>commons-io</artifactId>
 	<version>2.4</version>
+</dependency>
+
+<dependency>
+	<groupId>com.typesafe.akka</groupId>
+	<artifactId>akka-testkit_2.11</artifactId>
+	<version>2.4.4</version>
 </dependency>
 
 
@@ -30,7 +51,12 @@
          <artifactId>externalsortinginjava</artifactId>
          <version>[0.1.9,)</version>
          </dependency>
-
+<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
+		</dependency>
      
 <dependency>
 	<groupId>com.typesafe.akka</groupId>

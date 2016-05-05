@@ -1,5 +1,6 @@
 package com.dataflow.workers;
 
+import com.dataflow.messages.WorkToBeDone;
 import com.dataflow.workers.HeartBeatActor.HBMessage;
 import com.dataflow.workers.WorkerActor.WorkerState;
 import com.typesafe.config.Config;
@@ -22,12 +23,14 @@ public class CustomMailbox {
 						return 0;
 					else if(message instanceof WorkerState)
 						return 1;
-					else if (message instanceof HBMessage)
+					else if (message instanceof WorkToBeDone)
 						return 2;
-					else if (message.equals(PoisonPill.getInstance()))
-						return 4;
-					else
+					else if (message instanceof HBMessage)
 						return 3;
+					else if (message.equals(PoisonPill.getInstance()))
+						return 5;
+					else
+						return 4;
 				}
 			});
 		}
