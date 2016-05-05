@@ -30,5 +30,6 @@ public class Worker {
 		
 		system.actorOf(Props.
 				create(HeartBeatActor.class, config, daemons), "HeartBeatActor");
+		
 	}
 }
