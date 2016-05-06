@@ -1,50 +1,32 @@
 package com.dataflow.workers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang3.reflect.MethodUtils;
 
+import com.dataflow.messages.ConnectionComplete;
+import com.dataflow.messages.RegisterWorker;
+import com.dataflow.messages.WorkIsReady;
 import com.dataflow.messages.WorkRequest;
-import com.dataflow.workers.HeartBeatActor.HBMessage;
+import com.dataflow.messages.WorkToBeDone;
 import com.dataflow.workers.WorkerActor.WorkerState;
 
 import akka.actor.ActorRef;
+import akka.actor.OneForOneStrategy;
 import akka.actor.Props;
+import akka.actor.SupervisorStrategy;
+import akka.actor.SupervisorStrategy.Directive;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
-import akka.routing.ActorRefRoutee;
-import akka.routing.Broadcast;
-import akka.routing.Routee;
-import akka.routing.Router;
-import akka.routing.SmallestMailboxRoutingLogic;
+import akka.japi.Function;
+import akka.remote.RemoteActorRef;
+import scala.concurrent.duration.Duration;
 
 public class WorkerManager extends UntypedActor{
-	
-	public final int numOfCores;
-	private Router router;
-	private AtomicInteger freeWorkers;
+
+	private RemoteActorRef nameServer;
+	private ActorRef workerActor;
 	
 	public WorkerManager() {
-		this.numOfCores = Runtime.getRuntime().availableProcessors();
-		this.freeWorkers = new AtomicInteger(numOfCores);
-	}
-	
-	@Override
-	public void preStart() throws Exception {
-		List<Routee> workers = createWorkers(numOfCores);
-		router = new Router(new SmallestMailboxRoutingLogic(), workers);
-		router.route(new Broadcast("Hello"), getSelf());
-	}
-	
-	private List<Routee> createWorkers(int numOfCores) {
-		List<Routee> routees = new ArrayList<Routee>();
-		for(int i=0; i<numOfCores; i++){
-			ActorRef worker = createWorkerActor();
-		    routees.add(new ActorRefRoutee(worker));
-		}
-		
-		return routees;
+		this.workerActor = createWorkerActor();
 	}
 	
 	private ActorRef createWorkerActor(){
@@ -53,33 +35,50 @@ public class WorkerManager extends UntypedActor{
 	    getContext().watch(worker);
 	    return worker;
 	}
-
+	
+	private SupervisorStrategy strategy = new OneForOneStrategy(10, 
+			Duration.create(5, "seconds"), 
+			new Function<Throwable, Directive>() {
+	
+				@Override
+				public Directive apply(Throwable throwable) throws Exception {
+					return SupervisorStrategy.restart();
+				}
+			});
+	
+	@Override
+	public SupervisorStrategy supervisorStrategy() {
+		return strategy;
+	}
+	
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		System.out.println(getSender()+" "+msg);
-	    if(msg instanceof HBMessage) {
-	    	WorkRequest workReq = null;
-	    	if(freeWorkers.get() > 0)
-	    		workReq = new WorkRequest(getContext().parent(), 
-	    				freeWorkers.get());
-	    	getSender().tell(new HBMessage(Optional.ofNullable(workReq)), 
-	    			getSelf());
-	    } 
-	    else if(msg instanceof WorkerState) {
-	    	WorkerState state = (WorkerState) msg;
-	    	if(state == WorkerState.BUSY)
-	    		freeWorkers.decrementAndGet();
-	    	else
-	    		freeWorkers.incrementAndGet();
-	    }
-	    else if (msg instanceof Terminated) {
-	        router = router.removeRoutee(((Terminated) msg).actor());
-	        ActorRef worker = createWorkerActor();
-	        router = router.addRoutee(new ActorRefRoutee(worker));
-	    }
-	    else {
-	    	unhandled(msg);
-	    }
+		 MethodUtils.invokeExactMethod(this, "handle", msg);
+	}
+	
+	public void handle(ConnectionComplete complete){
+		nameServer = complete.getNameServer();
+		RegisterWorker register = new RegisterWorker(getContext().parent());
+		nameServer.tell(register, getSelf());
+	}
+	
+	public void handle(WorkIsReady workReady){
+		WorkRequest workReq = new WorkRequest(getContext().parent());
+		getSender().tell(workReq, getSelf());
 	}
 
+	public void handle(WorkToBeDone workToDo){
+		workerActor.forward(workToDo, getContext());
+	}
+	
+	public void handle(WorkerState state){
+		if(state == WorkerState.IDLE){
+			WorkRequest workReq = new WorkRequest(getContext().parent());
+			nameServer.tell(workReq, getSelf());
+		}
+	}
+	
+	public void handle(Terminated terminated){
+		workerActor = createWorkerActor();
+	}
 }

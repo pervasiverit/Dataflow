@@ -47,7 +47,7 @@ public class WorkerExec extends UntypedActor {
 		}
 
 		public void handle(WorkIsReady workReady) {
-			sendToMaster(new WorkRequest(getSelf(), 2));
+			sendToMaster(new WorkRequest(getSelf()));
 		}
 	};
 	
