@@ -2,33 +2,23 @@ package com.dataflow.nameserver;
 
 
 import com.dataflow.workers.HeartBeatActor.HBMessage;
+import com.typesafe.config.Config;
 
-import akka.actor.Props;
+import akka.actor.ActorSelection;
 import akka.actor.UntypedActor;
-import akka.japi.Creator;
 
 public class NameServerActor extends UntypedActor{
-	
-	static class NameServerCreator implements Creator<NameServerActor>{
-		private static final long serialVersionUID = 1L;
+	private ActorSelection jobManager;
 
-		@Override
-		public NameServerActor create() throws Exception {
-			return new NameServerActor();
-		}
+	public NameServerActor(Config config) {
+		this.jobManager = getContext().system().actorSelection
+				(config.getString("akka.actor.job-manager"));
 	}
-	
-	public static Props props(){
-		return Props.create(new NameServerCreator());
-	}
-	
-	public NameServerActor() {
-	}
-	
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		if(msg instanceof HBMessage){
-			System.out.println(((HBMessage)msg).workers);
+			HBMessage hbMsg = (HBMessage) msg;
+			hbMsg.workReq.ifPresent((workReq)->jobManager.tell(workReq, getSelf()));
 		}
 	}
 	

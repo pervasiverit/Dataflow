@@ -81,11 +81,8 @@ public class DataFlowJob {
 	 * @throws InterruptedException
 	 */
 	public void run() throws IOException {
-
-		final Config conf = ConfigFactory.parseString("akka.remote.netty.tcp.port=" + 5920)
-				.withFallback(ConfigFactory.load());
-		ActorSystem actorSystem = ActorSystem.create("ClientSystem", conf);
-		ActorSelection actor = actorSystem.actorSelection("akka.tcp://JobController@127.0.0.1:5919/user/JobActor");
+		ActorSystem actorSystem = ActorSystem.create();
+		ActorSelection actor = actorSystem.actorSelection("akka.tcp://JobSystem@129.21.12.242:5919/user/JobActor");
 		actor.tell(stageList, ActorRef.noSender());
 		System.out.println("Finished..");
 		try {

@@ -8,10 +8,6 @@ public class WorkerActor extends UntypedActor{
 		BUSY, IDLE;
 	}
 	
-	static public enum WorkStatus{
-		STARTED, FINSIHED;
-	}
-	
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		System.out.println("Printing from worker :"+ msg);

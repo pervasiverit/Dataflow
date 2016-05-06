@@ -20,16 +20,16 @@ import akka.actor.ActorRef;
 public class WorkStatus {
 
 	// pending work
-	ConcurrentLinkedDeque<Stage> pendingWork = new ConcurrentLinkedDeque<>();
+	private ConcurrentLinkedDeque<Stage> pendingWork = new ConcurrentLinkedDeque<>();
 
 	// Job in progress
-	Map<ActorRef, Stage> workInProgress = new HashMap<>();
+	private Map<ActorRef, Stage> workInProgress = new HashMap<>();
 
 	// accepted work ids.
-	HashSet<String> acceptedWorkIds = new HashSet<>();
+	private HashSet<String> acceptedWorkIds = new HashSet<>();
 
 	// completed work ids.
-	HashSet<String> comepletedWorkIds = new HashSet<>();
+	private HashSet<String> comepletedWorkIds = new HashSet<>();
 
 	public boolean hasWork() {
 		return !pendingWork.isEmpty();

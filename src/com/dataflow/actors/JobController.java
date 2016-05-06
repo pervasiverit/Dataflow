@@ -56,9 +56,6 @@ public class JobController extends UntypedPersistentActor {
 		if (workStatus.hasWork()) {
 			System.out.println("Received a work Request Message..");
 			final ActorRef ref = work.getActorRef();
-			//final int coresFree = work.getWorkerCount();
-			final WorkerState state = workers.get(ref);
-			@SuppressWarnings("unchecked")
 			WorkToBeDone toBeDone = (WorkToBeDone) MethodUtils.invokeMethod(this, "getWorkToBeDone", workStatus.next(),
 					work, ref);
 			persist(toBeDone, new Procedure<WorkToBeDone>() {
@@ -73,7 +70,6 @@ public class JobController extends UntypedPersistentActor {
 			});
 		}
 	}
-	
 
 	/**
 	 * Return an instance of the work to be done. put the stage inside the work
@@ -96,7 +92,6 @@ public class JobController extends UntypedPersistentActor {
 	 */
 	public void handle(MapWorkComplete work) {
 		final ActorRef ref = work.getActorRef();
-		final String taskId = work.getTaskId();
 		final String path = work.getPath().orElse("");
 		workers.put(ref, new WorkerState(ref, Idle.instance));
 		completedPointWiseTasks.addCompleted(ref, path);
@@ -104,7 +99,6 @@ public class JobController extends UntypedPersistentActor {
 			@Override
 			public void apply(MapWorkComplete work) throws Exception {
 				workStatus = workStatus.getInstance(workStatus, work);
-
 			}
 
 		});
@@ -117,7 +111,7 @@ public class JobController extends UntypedPersistentActor {
 	 * @param stage
 	 */
 	public void handle(PointWiseStage stage) {
-		final String jobID = stage.getJobId();
+		// final String jobID = stage.getJobId();
 		System.out.println("Adding Point wise stage..");
 		persist(stage, new Procedure<Stage>() {
 			@Override
@@ -137,7 +131,14 @@ public class JobController extends UntypedPersistentActor {
 	}
 
 	public void handle(CrossProductStage stage) {
-
+		System.out.println("Adding CrossProduct stage..");
+		persist(stage, new Procedure<Stage>() {
+			@Override
+			public void apply(Stage stage) throws Exception {
+				workStatus = workStatus.getInstance(workStatus, stage);
+				// notifyWorkers();
+			}
+		});
 	}
 
 	public void handle(String message) {
@@ -168,20 +169,20 @@ public class JobController extends UntypedPersistentActor {
 	@Override
 	public void onReceiveCommand(Object message) throws Exception {
 		MethodUtils.invokeMethod(this, HANDLER, message);
-		MethodUtils.invokeMethod(object, methodName,)
-
 	}
 
 	@Override
 	public void onReceiveRecover(Object message) throws Exception {
-		//workStatus = workStatus.getInstance(workStatus, message);
+		// workStatus = workStatus.getInstance(workStatus, message);
 	}
 
 	private static abstract class WorkerStatus {
 		protected abstract boolean isIdle();
 
+		private int workerCount;
+
 		private boolean isBusy() {
-			return !isIdle();
+			return workerCount == 0 && !isIdle();
 		};
 
 		protected abstract String getWorkId();

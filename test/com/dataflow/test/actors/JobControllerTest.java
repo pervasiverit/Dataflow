@@ -3,7 +3,7 @@ package com.dataflow.test.actors;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.dataflow.actors.JobController;
+import com.dataflow.actors.JobControllertemp;
 import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorRef;
@@ -20,7 +20,7 @@ public class JobControllerTest extends TestKit{
 
 	static ActorSystem system = ActorSystem.create("TestSys", ConfigFactory
 			.load("TestSys"));
-	ActorRef echoActorRef = system.actorOf(Props.create(JobController.class));
+	ActorRef echoActorRef = system.actorOf(Props.create(JobControllertemp.class));
 	
 	public JobControllerTest() {
 		super(system);
