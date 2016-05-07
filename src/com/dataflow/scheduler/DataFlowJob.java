@@ -95,7 +95,7 @@ public class DataFlowJob {
 			int stageTotal = io.size();
 			for (AbstractVertex vertex : queue.poll()) {
 				if (vertex.getVertexType() == VertexType.POINT_WISE){
-					Stage stg = new PointWiseStage(getInputFormatClass(), jobId, file);
+					PointWiseStage stg = new PointWiseStage(getInputFormatClass(), jobId, file);
 					stg.setStageTotal(stageTotal);
 					stg.setStageId(stageID++);
 					stageList.add(getStage(vertex, new VertexList(), stg));

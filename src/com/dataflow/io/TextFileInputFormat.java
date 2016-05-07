@@ -22,7 +22,7 @@ public class TextFileInputFormat implements InputFormat<String> {
 	private final long end;
 	private boolean extraRead;
 
-	public TextFileInputFormat(final File file, final long start, final long end) {
+	public TextFileInputFormat(final File file, final Long start, final Long end) {
 		if (file == null) {
 			throw new NullPointerException("File information is < null >");
 		}

@@ -19,8 +19,8 @@ import com.dataflow.vertex.AbstractVertex;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class PointWiseStage extends Stage {
 
-	private String tempPath = "tmp" + File.separator + getJobId() + File.separator + getTaskId();
-	private File file;
+	final private String tempPath = "tmp" + File.separator + getJobId() + File.separator + getTaskId();
+	final private File file;
 	final protected Class<? extends InputFormat> inputFormat;
 
 	public PointWiseStage(Class<? extends InputFormat> inputFormat, String jobId, File file) {

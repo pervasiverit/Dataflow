@@ -53,6 +53,6 @@ public abstract class Stage implements Serializable {
 	}
 	
 	public void setStageId(final int stageId) {
-		stageIncr = stageId;
+		stageID = stageId;
 	}
 }
