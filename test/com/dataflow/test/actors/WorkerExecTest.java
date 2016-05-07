@@ -1,16 +1,11 @@
 package com.dataflow.test.actors;
 
-import java.io.File;
-
 import org.junit.Test;
 
 import com.dataflow.actors.WorkerActor;
 import com.dataflow.actors.WorkerExec;
-import com.dataflow.io.TextFileInputFormat;
 import com.dataflow.messages.RegisterWorker;
 import com.dataflow.messages.WorkIsReady;
-import com.dataflow.messages.WorkToBeDone;
-import com.dataflow.scheduler.PointWiseStage;
 import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorRef;
@@ -21,9 +16,7 @@ import akka.japi.Function;
 import akka.testkit.JavaTestKit;
 import akka.testkit.TestActor;
 import akka.testkit.TestActor.AutoPilot;
-import akka.testkit.TestActorRef;
 import akka.testkit.TestKit;
-import akka.testkit.TestProbe;
 
 public class WorkerExecTest extends TestKit {
 

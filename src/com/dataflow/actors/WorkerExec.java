@@ -54,8 +54,8 @@ public class WorkerExec extends UntypedActor {
 	private final Procedure<Object> working = new Procedure<Object>() {
 		public void apply(Object message) {
 			if (message instanceof WorkComplete) {
-				Optional<String> path = ((WorkComplete) message).getPath();
-				sendToMaster(new WorkComplete(getSelf(), path, path.orElse("")));
+				String path = ((WorkComplete) message).getPath();
+				sendToMaster(new WorkComplete(getSelf(), path, path));
 				getContext().become(idle);
 			} else if (message instanceof WorkToBeDone) {
 				System.out.println("Working...");

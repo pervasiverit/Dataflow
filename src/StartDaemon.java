@@ -25,18 +25,18 @@ public class StartDaemon {
 		final Config conf = ConfigFactory.load("JobManager");
 		final ActorSystem system = ActorSystem.create("JobSystem", conf);
 		ActorRef actorJ = system.actorOf(Props.create(JobControllertemp.class), "JobActor");
-
-		final Function<ActorRefFactory, ActorRef> maker = new Function<ActorRefFactory, ActorRef>() {
-			  @Override 
-			  public ActorRef apply(ActorRefFactory f) throws Exception {
-			    return f.actorOf(Props.create(WorkerActor.class));
-			  }
-			};
-			
-		final ActorSystem wsystem = ActorSystem.create("WorkerSystem", ConfigFactory.load("localworker"));
-		final Props props = Props.create(WorkerActor.class);
-		final ActorRef actor = wsystem.actorOf(Props.create(WorkerExec.class, maker, actorJ));
-		actor.tell(new RegisterWorker(actor), ActorRef.noSender());
+//
+//		final Function<ActorRefFactory, ActorRef> maker = new Function<ActorRefFactory, ActorRef>() {
+//			  @Override 
+//			  public ActorRef apply(ActorRefFactory f) throws Exception {
+//			    return f.actorOf(Props.create(WorkerActor.class));
+//			  }
+//			};
+//			
+//		final ActorSystem wsystem = ActorSystem.create("WorkerSystem", ConfigFactory.load("localworker"));
+//		final Props props = Props.create(WorkerActor.class);
+//		final ActorRef actor = wsystem.actorOf(Props.create(WorkerExec.class, maker, actorJ));
+//		actor.tell(new RegisterWorker(actor), ActorRef.noSender());
 		
 	}
 

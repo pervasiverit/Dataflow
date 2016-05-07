@@ -20,8 +20,6 @@ import com.dataflow.utils.WorkStatus;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
-import akka.japi.Procedure;
-import akka.persistence.UntypedPersistentActor;
 
 public class JobControllertemp extends UntypedActor {
 
@@ -87,10 +85,14 @@ public class JobControllertemp extends UntypedActor {
 	 * @param work
 	 */
 	public void handle(MapWorkComplete work) {
+		System.out.println("Map Work Complete...");
 		final ActorRef ref = work.getActorRef();
-		final String path = work.getPath().orElse("");
+		System.out.println(ref);
+		final String path = work.getPath();
+		System.out.println(work.getPath());
 		workers.put(ref, new WorkerState(ref, Idle.instance));
 		completedPointWiseTasks.addCompleted(ref, path);
+		System.out.println(completedPointWiseTasks);
 		try {
 			workStatus = workStatus.getInstance(workStatus, work);
 		} catch (Exception e) {
@@ -134,7 +136,7 @@ public class JobControllertemp extends UntypedActor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-				// notifyWorkers();
+		// notifyWorkers();
 	}
 
 	public void handle(String message) {

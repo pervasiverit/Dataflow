@@ -93,7 +93,7 @@ public class JobController extends UntypedPersistentActor {
 	 */
 	public void handle(MapWorkComplete work) {
 		final ActorRef ref = work.getActorRef();
-		final String path = work.getPath().orElse("");
+		final String path = work.getPath();
 		workers.put(ref, new WorkerState(ref, Idle.instance));
 		completedPointWiseTasks.addCompleted(ref, path);
 		persist(work, new Procedure<MapWorkComplete>() {
