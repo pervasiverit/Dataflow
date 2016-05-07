@@ -33,12 +33,11 @@ public class HeartBeatActor extends UntypedActor{
 		}
 	}
 	
-	private ActorSystem system;
+	private ActorSystem system = getContext().system();
 	private ActorSelection nameServer;
 	private List<ActorRef> daemons;
 	
 	public HeartBeatActor(Config config, List<ActorRef> daemons) {
-		this.system = getContext().system();
 		this.nameServer = system.actorSelection
 				(config.getString("akka.actor.name-server"));
 		this.daemons = daemons;
