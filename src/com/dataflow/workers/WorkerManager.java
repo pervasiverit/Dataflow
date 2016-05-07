@@ -7,6 +7,7 @@ import com.dataflow.messages.RegisterWorker;
 import com.dataflow.messages.WorkIsReady;
 import com.dataflow.messages.WorkRequest;
 import com.dataflow.messages.WorkToBeDone;
+import com.dataflow.utils.Constants;
 import com.dataflow.workers.WorkerActor.WorkerState;
 
 import akka.actor.ActorRef;
@@ -24,13 +25,16 @@ public class WorkerManager extends UntypedActor{
 
 	private RemoteActorRef nameServer;
 	private ActorRef workerActor;
+	private final ActorRef deamonActor;
 	
 	public WorkerManager() {
 		this.workerActor = createWorkerActor();
+		this.deamonActor = getContext().parent();
 	}
 	
 	private ActorRef createWorkerActor(){
-		ActorRef worker = getContext().actorOf(Props.create(WorkerActor.class)
+		ActorRef worker = getContext().actorOf(Props
+				.create(WorkerActor.class, deamonActor)
 				.withDispatcher("pool-dispatcher"));
 	    getContext().watch(worker);
 	    return worker;
@@ -53,17 +57,17 @@ public class WorkerManager extends UntypedActor{
 	
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		 MethodUtils.invokeExactMethod(this, "handle", msg);
+		 MethodUtils.invokeExactMethod(this, Constants.HANDLER, msg);
 	}
 	
 	public void handle(ConnectionComplete complete){
 		nameServer = complete.getNameServer();
-		RegisterWorker register = new RegisterWorker(getContext().parent());
+		RegisterWorker register = new RegisterWorker(deamonActor);
 		nameServer.tell(register, getSelf());
 	}
 	
 	public void handle(WorkIsReady workReady){
-		WorkRequest workReq = new WorkRequest(getContext().parent());
+		WorkRequest workReq = new WorkRequest(deamonActor);
 		getSender().tell(workReq, getSelf());
 	}
 
@@ -73,7 +77,7 @@ public class WorkerManager extends UntypedActor{
 	
 	public void handle(WorkerState state){
 		if(state == WorkerState.IDLE){
-			WorkRequest workReq = new WorkRequest(getContext().parent());
+			WorkRequest workReq = new WorkRequest(deamonActor);
 			nameServer.tell(workReq, getSelf());
 		}
 	}

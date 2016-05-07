@@ -6,6 +6,7 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 
 import com.dataflow.messages.ConnectionComplete;
 import com.dataflow.messages.Message;
+import com.dataflow.utils.Constants;
 import com.typesafe.config.Config;
 
 import akka.actor.ActorRef;
@@ -32,12 +33,11 @@ public class HeartBeatActor extends UntypedActor{
 		}
 	}
 	
-	private ActorSystem system;
+	private ActorSystem system = getContext().system();
 	private ActorSelection nameServer;
 	private List<ActorRef> daemons;
 	
 	public HeartBeatActor(Config config, List<ActorRef> daemons) {
-		this.system = getContext().system();
 		this.nameServer = system.actorSelection
 				(config.getString("akka.actor.name-server"));
 		this.daemons = daemons;
@@ -56,7 +56,7 @@ public class HeartBeatActor extends UntypedActor{
 	
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		MethodUtils.invokeExactMethod(this, "handle", msg);
+		MethodUtils.invokeExactMethod(this, Constants.HANDLER, msg);
 	}
 	
 	public void handle(RemoteActorRef ref){

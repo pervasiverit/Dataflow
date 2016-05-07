@@ -1,7 +1,5 @@
 package com.dataflow.messages;
 
-import java.util.Optional;
-
 import com.dataflow.scheduler.Stage;
 
 import akka.actor.ActorRef;
@@ -22,5 +20,8 @@ public class WorkToBeDone extends WorkMessage{
 	public Stage getStage(){
 		return stage;
 	}
-
+	
+	public String getPath(){
+		return path;
+	}
 }
