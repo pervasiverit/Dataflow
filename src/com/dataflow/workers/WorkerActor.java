@@ -1,7 +1,12 @@
 package com.dataflow.workers;
 
-import com.dataflow.messages.WorkToBeDone;
+import java.util.Optional;
 
+import com.dataflow.messages.MapWorkComplete;
+import com.dataflow.messages.WorkToBeDone;
+import com.dataflow.scheduler.Stage;
+
+import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import akka.japi.Procedure;
 
@@ -11,12 +16,25 @@ public class WorkerActor extends UntypedActor{
 		BUSY, IDLE;
 	}
 	
+	private final ActorRef deamonActor;
+	private final ActorRef manager;
+	
+	public WorkerActor(ActorRef deamonActor) {
+		this.deamonActor = deamonActor;
+		this.manager = getContext().parent();
+	}
+	
 	Procedure<Object> busy = new Procedure<Object>() {
 		@Override
 		public void apply(Object msg) throws Exception {
 			if(msg instanceof WorkToBeDone) {
-				//TODO : Execute the work here
-				getContext().parent().tell(WorkerState.IDLE, getSelf());
+				WorkToBeDone work = (WorkToBeDone) msg;
+				Stage stage = work.getStage();
+				stage.run();
+				getSender().tell(new MapWorkComplete(deamonActor, 
+						Optional.ofNullable(work.getPath()),
+						stage.getTaskId()), deamonActor);
+				manager.tell(WorkerState.IDLE, getSelf());
 				getContext().unbecome();
 			}
 		}
@@ -27,7 +45,7 @@ public class WorkerActor extends UntypedActor{
 		System.out.println("Printing from worker :"+ msg);
 		if(msg instanceof WorkToBeDone) {
 			getSelf().tell(msg, getSender());
-			getContext().parent().tell(WorkerState.BUSY, getSelf());
+			manager.tell(WorkerState.BUSY, getSelf());
 			getContext().become(busy);
 		}
 		else{

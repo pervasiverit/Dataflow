@@ -6,6 +6,7 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 
 import com.dataflow.messages.ConnectionComplete;
 import com.dataflow.messages.Message;
+import com.dataflow.utils.Constants;
 import com.typesafe.config.Config;
 
 import akka.actor.ActorRef;
@@ -56,7 +57,7 @@ public class HeartBeatActor extends UntypedActor{
 	
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		MethodUtils.invokeExactMethod(this, "handle", msg);
+		MethodUtils.invokeExactMethod(this, Constants.HANDLER, msg);
 	}
 	
 	public void handle(RemoteActorRef ref){
