@@ -43,6 +43,7 @@ public class JobController extends UntypedPersistentActor {
 		workers.put(message.getActorRef(), new WorkerState(message.getActorRef(), Idle.instance));
 		System.out.println("Register Worker Message..");
 		if (workStatus.hasWork()) {
+			System.out.println(getSelf());
 			message.getActorRef().tell(new WorkIsReady(getSelf()), getSelf());
 		}
 	}

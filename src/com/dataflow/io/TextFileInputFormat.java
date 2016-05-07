@@ -14,92 +14,102 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class TextFileInputFormat implements InputFormat<String> {
 
-	private File file;
+	private final File file;
 	private BufferedReader stream;
 	private FileReader fis;
-	// for collecting stats.
-	private long numRecords;
+	private long start;
+	private long numOfRecords;
+	private final long end;
+	private boolean extraRead;
 
-	private final ReentrantLock lock = new ReentrantLock();
-
-	public TextFileInputFormat(File file) {
+	public TextFileInputFormat(final File file, final long start, final long end) {
 		if (file == null) {
 			throw new NullPointerException("File information is < null >");
 		}
 		this.file = file;
+		this.start = start;
+		this.end = end;
+		this.numOfRecords = start;
 	}
 
 	@Override
 	public void open() throws IOException {
-		lock.lock();
-		try {
-			if (fis == null) {
-				fis = new FileReader(file);
-				stream = new BufferedReader(fis);
-				numRecords = 0;
+		if (fis == null) {
+			fis = new FileReader(file);
+			boolean skipFirstLine = false;
+			stream = new BufferedReader(fis);
+			if (start != 0) {
+				skipFirstLine = true;
+				--start;
+				stream.skip(start);
 			}
-		} finally {
-			lock.unlock();
+			if (skipFirstLine) {
+				String str = stream.readLine();
+				start += str.length();
+			}
 		}
-
 	}
 
 	@Override
 	public String next() throws IOException {
-		lock.lock();
-		try {
-			if (stream == null) {
-				throw new IOException("Unable to Open the file");
-			}
-			String line = stream.readLine();
-			++numRecords;
-			return line != null ? line : null;
-		} finally {
-			lock.unlock();
+		if (stream == null) {
+			throw new IOException("Unable to Open the file");
 		}
+		String line = stream.readLine();
+		if (line != null)
+			numOfRecords = numOfRecords + line.length();
+		if(numOfRecords <= end){
+			return line != null? line : null;
+		}else{
+			if(!extraRead){
+				extraRead = true;
+				return line != null? line : null;
+			}
+			return null;
+		}
+		
 	}
 
 	@Override
 	public void close() throws IOException {
-		lock.lock();
-		try {
-			if (stream == null) {
-				throw new IOException("Unable to close the file");
-			}
-			fis = null;
-			stream = null;
-
-		} finally {
-			lock.unlock();
+		if (stream == null) {
+			throw new IOException("Unable to close the file");
 		}
-
+		fis = null;
+		stream = null;
 	}
 
 	@Override
 	public String toString() {
-		return "Total number of records is " + numRecords;
+		return "Total number of records is " + numOfRecords;
 	}
 
 	/**
 	 * Unit Test. To test threading.
+	 * 
 	 * @param args
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		File file = new File("common.conf");
-		TextFileInputFormat text = new TextFileInputFormat(file);
-
+		File file = new File("common.txt");
 		class pt extends Thread {
-
 			TextFileInputFormat text;
 
-			public pt(TextFileInputFormat text) throws IOException {
-				this.text = text;
+			public pt(long stageId) throws IOException {
+				long length = file.length();
+				
+				long temp = (long) Math.ceil((length / 2));
+				
+				long offset = stageId * temp;
+				long end = offset + temp;
+				System.out.println(String.format("Length %d temp %d offset % d", length, temp, offset));
+				this.text = new TextFileInputFormat(file, offset, end);
 				text.open();
 			}
 
 			@Override
 			public void run() {
+
 				try {
 					String str;
 					while ((str = text.next()) != null) {
@@ -113,9 +123,8 @@ public class TextFileInputFormat implements InputFormat<String> {
 
 		}
 
-		pt p = new pt(text);
-		pt p1 = new pt(text);
-
+		pt p = new pt(0);
+		pt p1 = new pt(1);
 		p.start();
 		p1.start();
 	}
