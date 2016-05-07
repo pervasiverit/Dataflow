@@ -22,12 +22,7 @@ public class PointWiseStage extends Stage {
 	private String tempPath = "tmp" + File.separator + getJobId() + File.separator + getTaskId();
 	private File file;
 	final protected Class<? extends InputFormat> inputFormat;
-	private static int stageIncr;
-	private final static int stageID;
-	static {
-		stageID = stageIncr;
-		stageIncr++;
-	}
+
 	public PointWiseStage(Class<? extends InputFormat> inputFormat, String jobId, File file) {
 		super(jobId);
 		this.file = file;

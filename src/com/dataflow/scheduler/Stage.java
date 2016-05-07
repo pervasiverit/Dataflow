@@ -17,6 +17,8 @@ public abstract class Stage implements Serializable {
 	
 	protected Queue<AbstractVertex> queue;
 	protected String jobId;
+	protected int stageIncr;
+	protected int stageID;
 	
 	protected String taskId = UUID.randomUUID().toString();
 	
@@ -44,5 +46,13 @@ public abstract class Stage implements Serializable {
 	@Override
 	public String toString() {
 		return queue.toString();
+	}
+
+	public void setStageTotal(final int stageTotal) {
+		stageIncr = stageTotal;
+	}
+	
+	public void setStageId(final int stageId) {
+		stageIncr = stageId;
 	}
 }
