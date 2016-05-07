@@ -1,17 +1,12 @@
-import com.dataflow.actors.JobController;
 import com.dataflow.actors.JobControllertemp;
-import com.dataflow.actors.ServerActor;
 import com.dataflow.actors.WorkerActor;
 import com.dataflow.actors.WorkerExec;
 import com.dataflow.messages.RegisterWorker;
-import com.dataflow.nameserver.NameServer;
-import com.dataflow.nameserver.NameServerActor;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorRefFactory;
-import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.japi.Function;
@@ -29,8 +24,8 @@ public class StartDaemon {
 	private static void start() {
 		final Config conf = ConfigFactory.load("JobManager");
 		final ActorSystem system = ActorSystem.create("JobSystem", conf);
-		system.actorOf(Props.create(JobControllertemp.class), "JobActor");
-
+		ActorRef actorJ = system.actorOf(Props.create(JobControllertemp.class), "JobActor");
+//
 //		final Function<ActorRefFactory, ActorRef> maker = new Function<ActorRefFactory, ActorRef>() {
 //			  @Override 
 //			  public ActorRef apply(ActorRefFactory f) throws Exception {

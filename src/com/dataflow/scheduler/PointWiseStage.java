@@ -79,8 +79,9 @@ public class PointWiseStage extends Stage {
 		long temp = (long)Math.ceil((length/ stageIncr));
 		long offset = stageID * temp;
 		long end = offset + temp;
+		System.out.println(String.format("StageID %d TotalStages %d", stageID, stageIncr));
 		try {
-			cons = inputFormat.getConstructor(File.class);
+			cons = inputFormat.getConstructor(File.class, Long.class, Long.class);
 		} catch (NoSuchMethodException | SecurityException err) {
 			throw new RuntimeException("Error while creating an input constructor");
 		}
