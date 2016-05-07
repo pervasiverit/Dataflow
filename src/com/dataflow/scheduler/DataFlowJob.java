@@ -35,8 +35,6 @@ public class DataFlowJob {
 	private File file;
 	private File outFile;
 	private Class<? extends OutputFormat> outputFormat;
-	private InputFormat instanceOfInputFormat;
-	private OutputFormat instanceOfOutputFormat;
 	protected final String jobId = UUID.randomUUID().toString();
 
 	public DataFlowJob() {
@@ -45,6 +43,14 @@ public class DataFlowJob {
 
 	public String getJobId() {
 		return jobId;
+	}
+	
+	private Class<? extends InputFormat> getInputFormatClass(){
+		return inputFormat;
+	}
+	
+	private Class<? extends OutputFormat> getOutputFormatClass(){
+		return outputFormat;
 	}
 
 	/**
@@ -55,25 +61,7 @@ public class DataFlowJob {
 	public void setInputFormat(Class<? extends InputFormat> inf) {
 		this.inputFormat = inf;
 	}
-
-	/**
-	 * Input Format for the file that needs to be read.
-	 * 
-	 * @return InputFormat
-	 */
-	public InputFormat getInputFormat() {
-		return instanceOfInputFormat;
-	}
-
-	/**
-	 * Output Format for a file that needs to be written
-	 * 
-	 * @return
-	 */
-	public OutputFormat getOutputFormat() {
-		return instanceOfOutputFormat;
-	}
-
+	
 	/**
 	 * TODO: If time permits change it to a CompletableFuture.
 	 * 
@@ -82,7 +70,8 @@ public class DataFlowJob {
 	 */
 	public void run() throws IOException {
 		ActorSystem actorSystem = ActorSystem.create();
-		ActorSelection actor = actorSystem.actorSelection("akka.tcp://JobSystem@129.21.12.242:5919/user/JobActor");
+		Config conf = ConfigFactory.load("application");
+		ActorSelection actor = actorSystem.actorSelection(conf.getString("job-manager"));
 		actor.tell(stageList, ActorRef.noSender());
 		System.out.println("Finished..");
 		try {
@@ -101,27 +90,17 @@ public class DataFlowJob {
 	 *            IO Vertex list
 	 */
 	public void setRoot(VertexList io) {
-		Constructor<? extends InputFormat> cons;
-		Constructor<? extends OutputFormat> oCons;
-		try {
-			cons = inputFormat.getConstructor(File.class);
-			oCons = outputFormat.getConstructor(File.class);
-		} catch (NoSuchMethodException | SecurityException err) {
-			throw new RuntimeException("Error while creating an input constructor");
-		}
-		try {
-			instanceOfInputFormat = (InputFormat) cons.newInstance(file);
-			instanceOfOutputFormat = (OutputFormat) oCons.newInstance(outFile);
-		} catch (Exception e) {
-
-		}
 		queue.add(io);
 		while (!queue.isEmpty()) {
-			for (AbstractVertex v : queue.poll()) {
-				if (v.getVertexType() == VertexType.POINT_WISE)
-					stageList.add(getStage(v, new VertexList(), new PointWiseStage(getInputFormat(), jobId)));
-				else
-					stageList.add(getStage(v, new VertexList(), new CrossProductStage(getInputFormat(), jobId)));
+			for (AbstractVertex vertex : queue.poll()) {
+				if (vertex.getVertexType() == VertexType.POINT_WISE){
+					Stage stg = new PointWiseStage(getInputFormatClass(), jobId, file);
+					stageList.add(getStage(vertex, new VertexList(), stg));
+				}
+				else {
+					Stage stg  = new CrossProductStage(getOutputFormatClass(), jobId, outFile);
+					stageList.add(getStage(vertex, new VertexList(), stg));
+				}
 			}
 		}
 		System.out.println(stageList.size());

@@ -21,7 +21,7 @@ public abstract class Stage implements Serializable {
 	protected String jobId;
 	
 	protected String taskId = UUID.randomUUID().toString();
-	final InputFormat inputFormat;
+	
 	
 	public String getTaskId(){
 		return taskId;
@@ -31,14 +31,9 @@ public abstract class Stage implements Serializable {
 		return jobId;
 	}
 	
-	public Stage(final InputFormat inputFormat, final String jobId) {
+	public Stage(final String jobId) {
 		queue = new ConcurrentLinkedQueue<>();
 		this.jobId = jobId;
-		this.inputFormat = inputFormat;
-	}
-	
-	protected InputFormat getInputFormat(){
-		return inputFormat;
 	}
 
 	public void addVertexList(final AbstractVertex v) {
