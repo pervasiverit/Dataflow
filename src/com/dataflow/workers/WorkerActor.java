@@ -1,7 +1,5 @@
 package com.dataflow.workers;
 
-import java.util.Optional;
-
 import com.dataflow.messages.MapWorkComplete;
 import com.dataflow.messages.WorkToBeDone;
 import com.dataflow.scheduler.Stage;
@@ -32,8 +30,7 @@ public class WorkerActor extends UntypedActor{
 				Stage stage = work.getStage();
 				stage.run();
 				getSender().tell(new MapWorkComplete(deamonActor, 
-						Optional.ofNullable(work.getPath()),
-						stage.getTaskId()), deamonActor);
+						work.getPath(), stage.getTaskId()), deamonActor);
 				manager.tell(WorkerState.IDLE, getSelf());
 				getContext().unbecome();
 			}

@@ -1,10 +1,11 @@
 package com.dataflow.nameserver;
 
 
-import org.apache.commons.lang3.reflect.MethodUtils;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.function.Predicate;
 
 import com.dataflow.messages.WorkMessage;
-import com.dataflow.utils.Constants;
 import com.dataflow.workers.HeartBeatActor.HBMessage;
 import com.typesafe.config.Config;
 
@@ -22,11 +23,14 @@ import scala.concurrent.duration.Duration;
 public class NameServerActor extends UntypedActor{
 
 	private final ActorSelection jobManager;
+	private RemoteActorRef jobManagerRef;
 	private final ActorRef clusterManager;
 	private final ActorSystem system = getContext().system();
-	//private final Queue<? extends WorkMessage> = new LinkedList();
+	private final Queue<? super WorkMessage> cache;
+	private final Predicate<RemoteActorRef> connection = (ref) -> ref != null;
 	
 	public NameServerActor(Config config) {
+		this.cache = new LinkedList<>();
 		this.jobManager = system.actorSelection
 				(config.getString("akka.actor.job-manager"));
 		this.clusterManager = getContext().actorOf(Props.
@@ -55,11 +59,18 @@ public class NameServerActor extends UntypedActor{
 	}
 	
 	public <T extends WorkMessage> void handle(T msg){
-		jobManager.tell(msg, getSelf());
+		if(connection.test(jobManagerRef))
+			jobManagerRef.tell(msg, getSelf());
+		else
+			cache.add(msg);
 	}
 	
 	public void handle(RemoteActorRef ref){
-		
+		this.jobManagerRef = ref;
+		for(Object msg : cache){
+			WorkMessage workMsg = (WorkMessage) msg;
+			jobManagerRef.tell(workMsg, getSelf());
+		}
 	}
 	
 	public void handle(Failure exception){
