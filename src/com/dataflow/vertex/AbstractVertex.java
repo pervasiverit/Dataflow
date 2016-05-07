@@ -16,8 +16,6 @@ import com.dataflow.io.Collector;
 import com.dataflow.utils.ConnectorType;
 
 public abstract class AbstractVertex<T> implements Serializable {
-
-	private static final long serialVersionUID = 7167879471388118185L;
 	public static enum VertexType {
 		POINT_WISE, SHUFFLE
 	}

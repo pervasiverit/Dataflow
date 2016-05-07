@@ -5,7 +5,6 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.dataflow.io.InputFormat;
 import com.dataflow.vertex.AbstractVertex;
 
 /***
@@ -14,9 +13,8 @@ import com.dataflow.vertex.AbstractVertex;
  * @author sumanbharadwaj
  *
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class Stage implements Serializable {
-	private static final long serialVersionUID = 4123829129686802172L;
+	
 	protected Queue<AbstractVertex> queue;
 	protected String jobId;
 	

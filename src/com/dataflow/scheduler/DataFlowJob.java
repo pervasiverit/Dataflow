@@ -71,7 +71,7 @@ public class DataFlowJob {
 	public void run() throws IOException {
 		ActorSystem actorSystem = ActorSystem.create();
 		Config conf = ConfigFactory.load("application");
-		ActorSelection actor = actorSystem.actorSelection(conf.getString("job-manager"));
+		ActorSelection actor = actorSystem.actorSelection(conf.getString("akka.actor.job-manager"));
 		actor.tell(stageList, ActorRef.noSender());
 		System.out.println("Finished..");
 		try {
