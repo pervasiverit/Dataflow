@@ -19,6 +19,7 @@ public abstract class Stage implements Serializable {
 	protected String jobId;
 	protected int stageIncr;
 	protected int stageID;
+	protected int partitionCount;
 	
 	protected String taskId = UUID.randomUUID().toString();
 	
@@ -54,5 +55,13 @@ public abstract class Stage implements Serializable {
 	
 	public void setStageId(final int stageId) {
 		stageID = stageId;
+	}
+	
+	public int getPartitionCount() {
+		return partitionCount;
+	}
+
+	public void setPartitionCount(int count) {
+		this.partitionCount = count;
 	}
 }

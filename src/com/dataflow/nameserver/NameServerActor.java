@@ -5,7 +5,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.Predicate;
 
+import org.apache.commons.lang3.reflect.MethodUtils;
+
 import com.dataflow.messages.WorkMessage;
+import com.dataflow.utils.Constants;
 import com.dataflow.workers.HeartBeatActor.HBMessage;
 import com.typesafe.config.Config;
 
@@ -44,8 +47,13 @@ public class NameServerActor extends UntypedActor{
 	}
 	
 	@Override
+	public void preStart() throws Exception {
+		//tryConnectingToJobManager();
+	}
+	
+	@Override
 	public void onReceive(Object msg) throws Exception {
-		//MethodUtils.invokeExactMethod(this, Constants.HANDLER, msg);
+		//MethodUtils.invokeMethod(this, Constants.HANDLER, msg);
 		if(msg instanceof HBMessage) {
 			clusterManager.tell(getSender(), getSelf());
 		}

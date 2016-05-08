@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.dataflow.edges.Edge;
 import com.dataflow.io.InputFormat;
 import com.dataflow.io.OutputFormat;
+import com.dataflow.partitioner.Partitioner;
 import com.dataflow.vertex.AbstractVertex;
 import com.dataflow.vertex.AbstractVertex.VertexType;
 import com.dataflow.vertex.VertexList;
@@ -34,7 +35,8 @@ public class DataFlowJob {
 	private File outFile;
 	private Class<? extends OutputFormat> outputFormat;
 	protected final String jobId = UUID.randomUUID().toString();
-
+	private Class<? extends Partitioner> partitioner;
+	
 	public DataFlowJob() {
 		stageList = new StageList();
 	}
@@ -93,7 +95,8 @@ public class DataFlowJob {
 			int stageTotal = io.size();
 			for (AbstractVertex vertex : queue.poll()) {
 				if (vertex.getVertexType() == VertexType.POINT_WISE){
-					PointWiseStage stg = new PointWiseStage(getInputFormatClass(), jobId, file);
+					PointWiseStage stg = new PointWiseStage(getInputFormatClass(), 
+							getPartitionerClass(), jobId, file);
 					stg.setStageTotal(stageTotal);
 					stg.setStageId(stageID++);
 					stageList.add(getStage(vertex, new VertexList(), stg));
@@ -131,6 +134,7 @@ public class DataFlowJob {
 
 	private Stage manageShuffle(AbstractVertex rootVertex, VertexList vList, Stage stage) {
 		vList.add(rootVertex);
+		stage.setPartitionCount(rootVertex.getOutput().size());
 		for (AbstractVertex stageVertex : vList) {
 			stage.addVertexList(stageVertex);
 		}
@@ -169,6 +173,14 @@ public class DataFlowJob {
 	 */
 	public void setOutputFormat(Class<? extends OutputFormat> of) {
 		this.outputFormat = of;
+	}
+
+	private Class<? extends Partitioner> getPartitionerClass() {
+		return partitioner;
+	}
+
+	public void setPartitioner(Class<? extends Partitioner> partitioner) {
+		this.partitioner = partitioner;
 	}
 
 }
