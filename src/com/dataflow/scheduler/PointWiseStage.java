@@ -1,9 +1,15 @@
 package com.dataflow.scheduler;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +73,7 @@ public class PointWiseStage extends Stage {
 		String collectedFile = collector.finish();
 		Optional<Partitioner> ptnr = createPartitionerInstance();
 		if(ptnr.isPresent()) {
-			ptnr.get().partition(collectedFile, partitionCount);
+			partition(collectedFile, ptnr.get());
 		}
 	}
 	
@@ -119,5 +125,25 @@ public class PointWiseStage extends Stage {
 	public String getPath() {
 		return tempPath;
 	}
-
+	
+	private void partition(String filePath, Partitioner ptnr) 
+			throws IOException {
+		Path path = Paths.get(filePath);
+		String partitionPath = path.getParent().toString() + File.separator
+				+ "partition_";
+		FileInputStream fis = new FileInputStream (path.toFile());
+		ObjectInputStream stream = new ObjectInputStream(fis);
+		Element ele;
+		try {
+			while((ele = (Element)stream.readObject()) != null) { 
+				FileOutputStream fos = new FileOutputStream(new File
+						(partitionPath + ptnr.partitionLogic(ele, partitionCount)));
+				ObjectOutputStream output = new ObjectOutputStream(fos);
+				output.writeObject(ele);
+				output.close();
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -1,10 +1,10 @@
 package com.dataflow.partitioner;
 
-import java.io.IOException;
 import java.io.Serializable;
 
+import com.dataflow.elements.Element;
+
 @FunctionalInterface
-public interface Partitioner extends Serializable{
-	public void partition(String filePath, int partitionCount) 
-			throws IOException;
+public interface Partitioner<T> extends Serializable{
+	public T partitionLogic(Element<?> element, int partitionCount);
 }
