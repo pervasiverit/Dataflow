@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 
@@ -14,6 +15,7 @@ import com.dataflow.io.Collector;
 import com.dataflow.io.InputFormat;
 import com.dataflow.io.IntermediateRecord;
 import com.dataflow.io.OutputFormat;
+import com.dataflow.partitioner.Partitioner;
 import com.dataflow.vertex.AbstractVertex;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -22,11 +24,14 @@ public class PointWiseStage extends Stage {
 	final private String tempPath = "tmp" + File.separator + getJobId() + File.separator + getTaskId();
 	final private File file;
 	final protected Class<? extends InputFormat> inputFormat;
+	final private Class<? extends Partitioner> partitioner;
 
-	public PointWiseStage(Class<? extends InputFormat> inputFormat, String jobId, File file) {
+	public PointWiseStage(Class<? extends InputFormat> inputFormat,
+			Class<? extends Partitioner> partitioner, String jobId, File file){
 		super(jobId);
 		this.file = file;
 		this.inputFormat = inputFormat;
+		this.partitioner = partitioner;
 	}
 
 	private static final long serialVersionUID = -6401487707823445353L;
@@ -58,10 +63,15 @@ public class PointWiseStage extends Stage {
 			}
 			
 		}
-		collector.finish();
 		
+		String collectedFile = collector.finish();
+		Optional<Partitioner> ptnr = createPartitionerInstance();
+		if(ptnr.isPresent()) {
+			ptnr.get().partition(collectedFile, partitionCount);
+		}
 	}
 	
+
 	private Class<? extends InputFormat> getInputFormat(){
 		return inputFormat;
 	}
@@ -88,7 +98,18 @@ public class PointWiseStage extends Stage {
 		return inf;
 	}
 
-
+	private Optional<Partitioner> createPartitionerInstance() {
+		Optional<Partitioner> optional;
+		Partitioner ptnr = null;
+		try {
+			ptnr = partitioner.newInstance();
+		} catch (Exception e) {
+			System.err.println("Error Creating Partintioner instance");
+		}
+		optional = Optional.ofNullable(ptnr);
+		return optional;
+	}
+	
 	@Override
 	public String toString() {
 		return tempPath;

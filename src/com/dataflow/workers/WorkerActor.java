@@ -1,7 +1,9 @@
 package com.dataflow.workers;
 
 import com.dataflow.messages.MapWorkComplete;
+import com.dataflow.messages.WorkComplete;
 import com.dataflow.messages.WorkToBeDone;
+import com.dataflow.scheduler.PointWiseStage;
 import com.dataflow.scheduler.Stage;
 
 import akka.actor.ActorRef;
@@ -29,8 +31,12 @@ public class WorkerActor extends UntypedActor{
 				WorkToBeDone work = (WorkToBeDone) msg;
 				Stage stage = work.getStage();
 				stage.run();
-				getSender().tell(new MapWorkComplete(deamonActor, 
-						work.getPath(), stage.getTaskId()), deamonActor);
+				WorkComplete complete = null;
+				if(stage instanceof PointWiseStage) {
+					complete = new MapWorkComplete(deamonActor, 
+							((PointWiseStage)stage).getPath(), stage.getTaskId());
+				}
+				getSender().tell(complete, deamonActor);
 				manager.tell(WorkerState.IDLE, getSelf());
 				getContext().unbecome();
 			}

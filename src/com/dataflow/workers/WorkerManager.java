@@ -25,11 +25,10 @@ public class WorkerManager extends UntypedActor{
 
 	private RemoteActorRef nameServer;
 	private ActorRef workerActor;
-	private final ActorRef deamonActor;
+	private final ActorRef deamonActor = getContext().parent();
 	
 	public WorkerManager() {
 		this.workerActor = createWorkerActor();
-		this.deamonActor = getContext().parent();
 	}
 	
 	private ActorRef createWorkerActor(){
