@@ -40,8 +40,7 @@ public class Collector<T extends Element> implements Iterable<IntermediateRecord
 
 	public void add(T element) throws IOException {
 		buffer.add(new IntermediateRecord<T>(element));
-		System.out.println(element);
-		if (buffer.size() >= this.bufferSize) {
+		if (buffer.size() >= bufferSize) {
 			snapshot();
 		}
 	}

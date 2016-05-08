@@ -58,7 +58,7 @@ public class PointWiseStage extends Stage {
 			}
 			
 		}
-		collector.finish();
+		String path = collector.finish();
 		
 	}
 	
