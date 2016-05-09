@@ -71,6 +71,8 @@ public class PointWiseStage extends Stage {
 			}
 			
 		}
+		String path = collector.finish();
+
 		
 		String collectedFile = collector.finish();
 		Optional<Partitioner> ptnr = createPartitionerInstance();

@@ -42,6 +42,10 @@ public class WorkStatus {
 	public WorkStatus() {
 
 	}
+	
+	public int getWorkInProgressCount(){
+		return workInProgress.size();
+	}
 
 	public WorkStatus getInstance(WorkStatus curr, Object message) throws Exception {
 		return (WorkStatus) ConstructorUtils.invokeConstructor(this.getClass(), curr, message);
@@ -71,17 +75,16 @@ public class WorkStatus {
 		comepletedWorkIds = tmp_doneWorkIds;
 		pendingWork = new ConcurrentLinkedDeque<>(curr.pendingWork);
 	}
-	
 
-	  public WorkStatus(WorkStatus curr, Stage workAccepted) {
-	    ConcurrentLinkedDeque<Stage> tmp_pendingWork = new ConcurrentLinkedDeque<>(curr.pendingWork);
-	    HashSet<String> tmp_acceptedWorkIds = new HashSet<String>(curr.acceptedWorkIds);
-	    tmp_pendingWork.addLast(workAccepted);
-	    tmp_acceptedWorkIds.add(workAccepted.getTaskId());
-	    workInProgress = new HashMap<>(curr.workInProgress);
-	    acceptedWorkIds = tmp_acceptedWorkIds;
-	    comepletedWorkIds = new HashSet<String>(curr.comepletedWorkIds);
-	    pendingWork = tmp_pendingWork;
-	  }
+	public WorkStatus(WorkStatus curr, Stage workAccepted) {
+		ConcurrentLinkedDeque<Stage> tmp_pendingWork = new ConcurrentLinkedDeque<>(curr.pendingWork);
+		HashSet<String> tmp_acceptedWorkIds = new HashSet<String>(curr.acceptedWorkIds);
+		tmp_pendingWork.addLast(workAccepted);
+		tmp_acceptedWorkIds.add(workAccepted.getTaskId());
+		workInProgress = new HashMap<>(curr.workInProgress);
+		acceptedWorkIds = tmp_acceptedWorkIds;
+		comepletedWorkIds = new HashSet<String>(curr.comepletedWorkIds);
+		pendingWork = tmp_pendingWork;
+	}
 
 }

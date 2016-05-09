@@ -4,6 +4,7 @@ import static com.dataflow.utils.Constants.HANDLER;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
 
@@ -51,17 +52,20 @@ public class JobControllertemp extends UntypedActor {
 	 * 
 	 * @param work
 	 */
+	@SuppressWarnings("unchecked")
 	public void handle(WorkRequest work) throws Exception {
 		if (workStatus.hasWork()) {
 			System.out.println("Received a work Request Message..");
 			final ActorRef ref = work.getActorRef();
-			WorkToBeDone toBeDone = (WorkToBeDone) MethodUtils.invokeMethod(this, "getWorkToBeDone", workStatus.next(),
-					work, ref);
-			workStatus = workStatus.getInstance(workStatus, toBeDone);
-			String taskId = toBeDone.getStage().getTaskId();
-			workers.put(ref, new WorkerState(getSender(), new Busy(taskId)));
-			System.out.println(ref + " Sending a work to be done message..");
-			ref.tell(toBeDone, getSelf());
+			Optional<WorkToBeDone> toBeDone = (Optional<WorkToBeDone>) MethodUtils.invokeMethod(this, "getWorkToBeDone",
+					workStatus.next(), ref);
+			if (toBeDone.isPresent()) {
+				workStatus = workStatus.getInstance(workStatus, toBeDone);
+				String taskId = toBeDone.get().getStage().getTaskId();
+				workers.put(ref, new WorkerState(getSender(), new Busy(taskId)));
+				System.out.println(ref + " Sending a work to be done message..");
+				ref.tell(toBeDone, getSelf());
+			}
 		}
 	}
 
@@ -74,8 +78,14 @@ public class JobControllertemp extends UntypedActor {
 	 * @param ref
 	 * @return
 	 */
-	public WorkToBeDone getWorkToBeDone(PointWiseStage stage, WorkRequest workRequest, ActorRef ref) {
-		return new WorkToBeDone(ref, stage, "");
+	public Optional<WorkToBeDone> getWorkToBeDone(PointWiseStage stage, ActorRef ref) {
+		return Optional.of(new WorkToBeDone(ref, stage, ""));
+	}
+
+	public Optional<WorkToBeDone> getWorkToBeDone(CrossProductStage stage, ActorRef ref) {
+		if (workStatus.getWorkInProgressCount() == 0)
+			return Optional.of(new WorkToBeDone(ref, stage, ""));
+		return Optional.empty();
 	}
 
 	/**
@@ -96,10 +106,8 @@ public class JobControllertemp extends UntypedActor {
 		try {
 			workStatus = workStatus.getInstance(workStatus, work);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
@@ -133,7 +141,6 @@ public class JobControllertemp extends UntypedActor {
 		try {
 			workStatus = workStatus.getInstance(workStatus, stage);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		// notifyWorkers();

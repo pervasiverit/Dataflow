@@ -22,10 +22,6 @@ public class Collector<T extends Element> implements Iterable<IntermediateRecord
 
 	private final List<IntermediateRecord<T>> buffer;
 	private final String tmpDir;
-	/*private static AtomicInteger tmpFileSeq = new AtomicInteger(0);
-	private List<String> splitPaths = new ArrayList<>();
-
-	private final static int bufferSize = 10000;*/
 
 	public Collector(String path) {
 		buffer = new LinkedList<>();
@@ -36,22 +32,13 @@ public class Collector<T extends Element> implements Iterable<IntermediateRecord
 		buffer.clear();
 	}
 	
-	/*private String getFilePath() {
-		return this.tmpDir + File.separator + "split_" + tmpFileSeq.get();
-	}*/
-
 	public void add(T element) throws IOException {
 		buffer.add(new IntermediateRecord<T>(element));
-		/*System.out.println(element);
-		if (buffer.size() >= bufferSize) {
-			snapshot();
-		}*/
 	}
 
 	public String finish() throws IOException {
 		String path = this.tmpDir + File.separator + "records.sorted " + Thread.currentThread().getId();
 		snapshot(path);
-		//sortSplitFiles(path);
 		return path;
 	}
 	
@@ -59,21 +46,8 @@ public class Collector<T extends Element> implements Iterable<IntermediateRecord
 		return Collections.unmodifiableList(new LinkedList<>(buffer));
 	}
 
-	/*private void sortSplitFiles(String path) throws IOException {
-		List<File> files = splitPaths
-							.stream()
-							.map(e -> new File(e))
-							.collect(Collectors.toList());
-		try {
-			ExternalSort.mergeSortedFiles(files,new File(path));
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	}*/
-
 	private void snapshot(String path) throws IOException {
 		Collections.sort(buffer);
-		//String path = getFilePath();
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
 		for (IntermediateRecord<T> record : buffer) {
 			out.writeObject(record.getElement());
@@ -82,8 +56,6 @@ public class Collector<T extends Element> implements Iterable<IntermediateRecord
 		out.flush();
 		out.close();
 		buffer.clear();
-		/*splitPaths.add(path);
-		tmpFileSeq.getAndIncrement();*/
 	}
 
 	// TODO: Change this..

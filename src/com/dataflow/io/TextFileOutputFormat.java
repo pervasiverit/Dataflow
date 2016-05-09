@@ -12,7 +12,6 @@ public class TextFileOutputFormat implements OutputFormat {
 	private OutputStream stream;
 	private PrintWriter writer;
 	private File file;
-	private final ReentrantLock lock = new ReentrantLock();
 
 	public TextFileOutputFormat(File file) {
 		if (file == null) {
@@ -23,13 +22,8 @@ public class TextFileOutputFormat implements OutputFormat {
 
 	@Override
 	public void open() throws IOException {
-		lock.lock();
-		try {
-			stream = new FileOutputStream(file);
-			writer = new PrintWriter(stream);
-		} finally {
-			lock.unlock();
-		}
+		stream = new FileOutputStream(file);
+		writer = new PrintWriter(stream);
 	}
 
 	@Override
@@ -39,13 +33,8 @@ public class TextFileOutputFormat implements OutputFormat {
 
 	@Override
 	public void close() {
-		lock.lock();
-		try {
-			writer.close();
-			file = null;
-		} finally {
-			lock.unlock();
-		}
+		writer.close();
+		file = null;
 	}
 
 }
