@@ -5,6 +5,6 @@ import java.io.Serializable;
 import com.dataflow.elements.Element;
 
 @FunctionalInterface
-public interface Partitioner<T> extends Serializable{
-	public T partitionLogic(Element<?> element, int partitionCount);
+public interface Partitioner extends Serializable{
+	public Integer partitionLogic(Element<?> element, int partitionCount);
 }

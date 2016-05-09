@@ -2,7 +2,7 @@ package com.dataflow.partitioner;
 
 import com.dataflow.elements.Element;
 
-public class HashPartitioner implements Partitioner<Integer>{
+public class HashPartitioner implements Partitioner{
 
 	/**
 	 * 
@@ -11,7 +11,7 @@ public class HashPartitioner implements Partitioner<Integer>{
 
 	@Override
 	public Integer partitionLogic(Element<?> element, int partitionCount) {
-		return element.hashCode() % partitionCount;
+		return (element.hashCode() & Integer.MAX_VALUE) % partitionCount;
 	}
 		
 }

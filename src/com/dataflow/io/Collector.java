@@ -76,8 +76,9 @@ public class Collector<T extends Element> implements Iterable<IntermediateRecord
 		//String path = getFilePath();
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
 		for (IntermediateRecord<T> record : buffer) {
-			out.writeObject(record.getElement().getElement());
+			out.writeObject(record.getElement());
 		}
+		out.writeObject(null);
 		out.flush();
 		out.close();
 		buffer.clear();

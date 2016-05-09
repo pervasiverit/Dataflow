@@ -30,11 +30,13 @@ public class WorkerActor extends UntypedActor{
 			if(msg instanceof WorkToBeDone) {
 				WorkToBeDone work = (WorkToBeDone) msg;
 				Stage stage = work.getStage();
+				stage.setPartitionCount(2);
 				stage.run();
+				System.out.println(stage.getPartitionFiles());
 				WorkComplete complete = null;
 				if(stage instanceof PointWiseStage) {
 					complete = new MapWorkComplete(deamonActor, 
-							((PointWiseStage)stage).getPath(), stage.getTaskId());
+							stage.getPartitionFiles(), stage.getTaskId());
 				}
 				getSender().tell(complete, deamonActor);
 				manager.tell(WorkerState.IDLE, getSelf());
