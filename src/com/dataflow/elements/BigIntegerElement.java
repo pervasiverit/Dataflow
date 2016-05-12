@@ -20,4 +20,9 @@ public class BigIntegerElement implements Element<BigInteger> {
 	public int compareTo(Element<BigInteger> other) {
 		return this.element.compareTo(((BigIntegerElement)other).getElement());
 	}
+	
+	@Override
+	public String toString(){
+		return element.toString();
+	}
 }

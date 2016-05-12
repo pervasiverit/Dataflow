@@ -70,9 +70,13 @@ public class JobControllertemp extends UntypedActor {
 				sendMessage(ref, toBeDone, taskId);
 				
 			}else{
-				ReduceWorkToBeDone toBeDone = (ReduceWorkToBeDone) obj;
-				String taskId = toBeDone.getStage().getTaskId();
-				sendMessage(ref, toBeDone, taskId);
+				Optional<ReduceWorkToBeDone> castedObj = (Optional<ReduceWorkToBeDone>) obj;
+				if(castedObj.isPresent()){
+					ReduceWorkToBeDone toBeDone = castedObj.get();
+					String taskId = toBeDone.getStage().getTaskId();
+					sendMessage(ref, toBeDone, taskId);
+				}
+				
 			}
 			
 		}

@@ -58,11 +58,7 @@ public class Collector<T extends Element> implements Iterable<IntermediateRecord
 		buffer.clear();
 	}
 
-	// TODO: Change this..
-	@Override
-	public String toString() {
-		return "Collector" + " ";
-	}
+
 
 	@Override
 	public Iterator<IntermediateRecord<T>> iterator() {

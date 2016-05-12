@@ -18,5 +18,5 @@ public class IntermediateRecord<T extends Element> implements Comparable<Interme
 	public int compareTo(final IntermediateRecord<T> o) {
 		return this.element.compareTo(o.element);
 	}
-
+	
 }
