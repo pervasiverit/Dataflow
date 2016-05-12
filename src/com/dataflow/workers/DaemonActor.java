@@ -1,7 +1,10 @@
 package com.dataflow.workers;
 
 import com.dataflow.messages.ConnectionComplete;
+import com.dataflow.messages.ReadPartition;
+import com.dataflow.messages.ReduceWorkToBeDone;
 import com.dataflow.messages.WorkIsReady;
+import com.dataflow.messages.WorkMessage;
 import com.dataflow.messages.WorkToBeDone;
 
 import akka.actor.ActorRef;
@@ -20,10 +23,12 @@ public class DaemonActor extends UntypedActor{
 	
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		if(msg instanceof WorkToBeDone || msg instanceof WorkIsReady)
+		if(msg instanceof WorkMessage) {
 			manager.forward(msg, getContext());
-		else if(msg instanceof ConnectionComplete)
+		}
+		else if(msg instanceof ConnectionComplete) {
 			manager.forward(msg, getContext());
+		}
 		else 
 			unhandled(msg);
 	}
