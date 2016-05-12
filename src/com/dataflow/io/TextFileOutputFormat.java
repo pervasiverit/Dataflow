@@ -35,6 +35,7 @@ public class TextFileOutputFormat implements OutputFormat {
 
 	@Override
 	public void close() {
+		writer.flush();
 		writer.close();
 		file = null;
 	}
