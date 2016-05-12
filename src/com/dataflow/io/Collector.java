@@ -50,7 +50,7 @@ public class Collector<T extends Element> implements Iterable<IntermediateRecord
 		Collections.sort(buffer);
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
 		for (IntermediateRecord<T> record : buffer) {
-			out.writeObject(record.getElement().getElement());
+			out.writeObject(record.getElement());
 		}
 		out.flush();
 		out.close();

@@ -4,9 +4,6 @@ import com.dataflow.elements.Element;
 
 public class HashPartitioner implements Partitioner<Integer>{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@Override

@@ -57,15 +57,15 @@ public class JobControllertemp extends UntypedActor {
 		if (workStatus.hasWork()) {
 			System.out.println("Received a work Request Message..");
 			final ActorRef ref = work.getActorRef();
-			Optional<WorkToBeDone> toBeDone = (Optional<WorkToBeDone>) MethodUtils.invokeMethod(this, "getWorkToBeDone",
+			WorkToBeDone toBeDone = (WorkToBeDone) MethodUtils.invokeMethod(this, "getWorkToBeDone",
 					workStatus.next(), ref);
-			if (toBeDone.isPresent()) {
+			//if (toBeDone.isPresent()) {
 				workStatus = workStatus.getInstance(workStatus, toBeDone);
-				String taskId = toBeDone.get().getStage().getTaskId();
+				String taskId = toBeDone.getStage().getTaskId();
 				workers.put(ref, new WorkerState(getSender(), new Busy(taskId)));
 				System.out.println(ref + " Sending a work to be done message..");
 				ref.tell(toBeDone, getSelf());
-			}
+			//}
 		}
 	}
 
@@ -78,15 +78,14 @@ public class JobControllertemp extends UntypedActor {
 	 * @param ref
 	 * @return
 	 */
-	public Optional<WorkToBeDone> getWorkToBeDone(PointWiseStage stage, ActorRef ref) {
-		return Optional.of(new WorkToBeDone(ref, stage, ""));
+	public WorkToBeDone getWorkToBeDone(PointWiseStage stage, ActorRef ref) {
+		return new WorkToBeDone(ref, stage, "");
 	}
 
-	public Optional<WorkToBeDone> getWorkToBeDone(CrossProductStage stage, ActorRef ref) {
-		if (workStatus.getWorkInProgressCount() == 0)
-			return Optional.of(new WorkToBeDone(ref, stage, ""));
-		return Optional.empty();
-	}
+//	public WorkToBeDone getWorkToBeDone(CrossProductStage stage, ActorRef ref) {
+//			return new WorkToBeDone(ref, stage, "");
+//		return Optional.empty();
+//	}
 
 	/**
 	 * Handler for the map work completed message. Worker sends a path and its

@@ -10,7 +10,6 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +19,6 @@ import com.dataflow.elements.Element;
 import com.dataflow.io.Collector;
 import com.dataflow.io.InputFormat;
 import com.dataflow.io.IntermediateRecord;
-import com.dataflow.io.OutputFormat;
 import com.dataflow.partitioner.Partitioner;
 import com.dataflow.vertex.AbstractVertex;
 
@@ -32,8 +30,8 @@ public class PointWiseStage extends Stage {
 	final protected Class<? extends InputFormat> inputFormat;
 	final private Class<? extends Partitioner> partitioner;
 
-	public PointWiseStage(Class<? extends InputFormat> inputFormat,
-			Class<? extends Partitioner> partitioner, String jobId, File file){
+	public PointWiseStage(Class<? extends InputFormat> inputFormat, Class<? extends Partitioner> partitioner,
+			String jobId, File file) {
 		super(jobId);
 		this.file = file;
 		this.inputFormat = inputFormat;
@@ -47,7 +45,7 @@ public class PointWiseStage extends Stage {
 			throw new FileNotFoundException("Please provide file inputformat");
 		InputFormat infInstance = createInstance();
 		Collector<Element> collector = new Collector<>(tempPath);
-		
+
 		FileUtils.forceMkdir(new File(tempPath));
 		if (infInstance != null) {
 			infInstance.open();
@@ -64,32 +62,29 @@ public class PointWiseStage extends Stage {
 			mapSide = queue.poll();
 			List<IntermediateRecord<Element>> buffer = collector.getBuffer();
 			collector.clearBuffer();
-			for(IntermediateRecord<Element> element: buffer){
+			for (IntermediateRecord<Element> element : buffer) {
 				mapSide.execute(element.getElement(), collector);
 			}
-			
+
 		}
 		String path = collector.finish();
 
-		
 		String collectedFile = collector.finish();
 		Optional<Partitioner> ptnr = createPartitionerInstance();
-		if(ptnr.isPresent()) {
+		if (ptnr.isPresent()) {
 			partition(collectedFile, ptnr.get());
 		}
 	}
-	
 
-	private Class<? extends InputFormat> getInputFormat(){
+	private Class<? extends InputFormat> getInputFormat() {
 		return inputFormat;
 	}
-	
-	
+
 	private InputFormat createInstance() {
 		Constructor<? extends InputFormat> cons;
 		InputFormat inf = null;
 		long length = file.length();
-		long temp = (long)Math.ceil((length/ stageIncr));
+		long temp = (long) Math.ceil((length / stageIncr));
 		long offset = stageID * temp;
 		long end = offset + temp;
 		System.out.println(String.format("StageID %d TotalStages %d", stageID, stageIncr));
@@ -99,7 +94,7 @@ public class PointWiseStage extends Stage {
 			throw new RuntimeException("Error while creating an input constructor");
 		}
 		try {
-			inf = (InputFormat) cons.newInstance(file, offset,end);
+			inf = (InputFormat) cons.newInstance(file, offset, end);
 		} catch (Exception e) {
 
 		}
@@ -117,29 +112,26 @@ public class PointWiseStage extends Stage {
 		optional = Optional.ofNullable(ptnr);
 		return optional;
 	}
-	
+
 	@Override
 	public String toString() {
 		return tempPath;
 	}
 
-
 	public String getPath() {
 		return tempPath;
 	}
-	
-	private void partition(String filePath, Partitioner ptnr) 
-			throws IOException {
+
+	private void partition(String filePath, Partitioner ptnr) throws IOException {
 		Path path = Paths.get(filePath);
-		String partitionPath = path.getParent().toString() + File.separator
-				+ "partition_";
-		FileInputStream fis = new FileInputStream (path.toFile());
+		String partitionPath = path.getParent().toString() + File.separator + "partition_";
+		FileInputStream fis = new FileInputStream(path.toFile());
 		ObjectInputStream stream = new ObjectInputStream(fis);
 		Element ele;
 		try {
-			while((ele = (Element)stream.readObject()) != null) { 
-				FileOutputStream fos = new FileOutputStream(new File
-						(partitionPath + ptnr.partitionLogic(ele, partitionCount)));
+			while ((ele = (Element) stream.readObject()) != null) {
+				FileOutputStream fos = new FileOutputStream(
+						new File(partitionPath + ptnr.partitionLogic(ele, partitionCount)));
 				ObjectOutputStream output = new ObjectOutputStream(fos);
 				output.writeObject(ele);
 				output.close();
