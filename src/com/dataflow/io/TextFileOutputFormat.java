@@ -7,6 +7,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.io.FileUtils;
+
 public class TextFileOutputFormat implements OutputFormat {
 
 	private OutputStream stream;
@@ -17,12 +19,12 @@ public class TextFileOutputFormat implements OutputFormat {
 		if (file == null) {
 			throw new NullPointerException("File is null");
 		}
-		this.file = file;
+		this.file = new File(file.getAbsolutePath()+File.separator+"part");
 	}
 
 	@Override
 	public void open() throws IOException {
-		stream = new FileOutputStream(file.getAbsolutePath()+File.pathSeparator+"part");
+		stream = new FileOutputStream(file.getAbsolutePath());
 		writer = new PrintWriter(stream);
 	}
 
@@ -35,6 +37,18 @@ public class TextFileOutputFormat implements OutputFormat {
 	public void close() {
 		writer.close();
 		file = null;
+	}
+	
+	
+	public static void main(String[] args) throws IOException {
+		File file = new File("sumout");
+		FileUtils.forceMkdir(file);
+		TextFileOutputFormat tof = new TextFileOutputFormat(file);
+		tof.open();
+		for(int i=0 ; i< 10; i++){
+			tof.write("hi");
+		}
+		tof.close();
 	}
 
 }

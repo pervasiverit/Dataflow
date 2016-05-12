@@ -46,6 +46,7 @@ public class CrossProductStage extends Stage {
 		
 		final int size = queue.size();
 		FileUtils.forceMkdir(file);
+		
 		AbstractVertex reduceSide = null;
 		for (int i = 0; i < size; ++i) {
 			reduceSide = queue.poll();
