@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 import com.dataflow.messages.MapWorkComplete;
+import com.dataflow.messages.ReduceWorkComplete;
 import com.dataflow.messages.ReduceWorkToBeDone;
 import com.dataflow.messages.RegisterWorker;
 import com.dataflow.messages.WorkIsReady;
@@ -130,6 +131,10 @@ public class JobControllertemp extends UntypedActor {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void handle(ReduceWorkComplete reduceWorkComplete){
+		System.out.println("Reduce Work Complete...");
 	}
 
 	/**
