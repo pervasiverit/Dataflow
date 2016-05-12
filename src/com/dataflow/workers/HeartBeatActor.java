@@ -33,9 +33,9 @@ public class HeartBeatActor extends UntypedActor{
 		}
 	}
 	
-	private ActorSystem system = getContext().system();
-	private ActorSelection nameServer;
-	private List<ActorRef> daemons;
+	private final ActorSystem system = getContext().system();
+	private final ActorSelection nameServer;
+	private final List<ActorRef> daemons;
 	
 	public HeartBeatActor(Config config, List<ActorRef> daemons) {
 		this.nameServer = system.actorSelection

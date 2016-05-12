@@ -3,6 +3,8 @@ package com.dataflow.workers;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 import com.dataflow.messages.ConnectionComplete;
+import com.dataflow.messages.ReadPartition;
+import com.dataflow.messages.ReduceWorkToBeDone;
 import com.dataflow.messages.RegisterWorker;
 import com.dataflow.messages.WorkIsReady;
 import com.dataflow.messages.WorkRequest;
@@ -59,29 +61,37 @@ public class WorkerManager extends UntypedActor{
 		 MethodUtils.invokeExactMethod(this, Constants.HANDLER, msg);
 	}
 	
-	public void handle(ConnectionComplete complete){
+	public void handle(ConnectionComplete complete) {
 		nameServer = complete.getNameServer();
 		RegisterWorker register = new RegisterWorker(deamonActor);
 		nameServer.tell(register, getSelf());
 	}
 	
-	public void handle(WorkIsReady workReady){
+	public void handle(WorkIsReady workReady) {
 		WorkRequest workReq = new WorkRequest(deamonActor);
 		getSender().tell(workReq, getSelf());
 	}
 
-	public void handle(WorkToBeDone workToDo){
+	public void handle(WorkToBeDone workToDo) {
 		workerActor.forward(workToDo, getContext());
 	}
 	
-	public void handle(WorkerState state){
+	public void handle(ReduceWorkToBeDone workToDo) {
+		workerActor.forward(workToDo, getContext());
+	}
+	
+	public void handle(ReadPartition workToDo) {
+		workerActor.forward(workToDo, getContext());
+	}
+	
+	public void handle(WorkerState state) {
 		if(state == WorkerState.IDLE){
 			WorkRequest workReq = new WorkRequest(deamonActor);
 			nameServer.tell(workReq, getSelf());
 		}
 	}
 	
-	public void handle(Terminated terminated){
+	public void handle(Terminated terminated) {
 		workerActor = createWorkerActor();
 	}
 }
