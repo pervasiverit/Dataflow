@@ -5,12 +5,12 @@ import com.dataflow.elements.BigIntegerElement;
 import com.dataflow.io.Collector;
 import com.dataflow.vertex.AbstractVertex;
 
-public class Sum extends AbstractVertex<BigInteger>{
+public class Sum extends AbstractVertex<BigIntegerElement>{
 	private BigInteger total = BigInteger.ZERO;
 	
 	@Override
-	public void execute(BigInteger line, Collector collector) throws IOException {
-		total = total.add(line);
+	public void execute(BigIntegerElement line, Collector collector) throws IOException {
+		total = total.add(line.getElement());
 		System.out.println(total);
 	}
 	
