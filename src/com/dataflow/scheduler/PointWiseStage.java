@@ -157,8 +157,10 @@ public class PointWiseStage extends Stage {
 		}
 		
 		setPartitionFiles(partitionFiles);
-		for(ObjectOutputStream out : partitionOuts)
+		for(ObjectOutputStream out : partitionOuts){
+			out.writeObject(null);
 			out.close();
+		}
 	}
 	
 }

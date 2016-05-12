@@ -77,7 +77,9 @@ public class WorkerManager extends UntypedActor{
 	}
 	
 	public void handle(ReduceWorkToBeDone workToDo) {
-		workerActor.forward(workToDo, getContext());
+		ActorRef copyActor = getContext().actorOf(Props
+				.create(CopyPartitionActor.class, workerActor));
+		copyActor.forward(workToDo, getContext());
 	}
 	
 	public void handle(ReadPartition workToDo) {

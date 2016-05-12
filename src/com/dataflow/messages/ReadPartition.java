@@ -6,16 +6,15 @@ import akka.actor.ActorRef;
 
 public class ReadPartition extends WorkMessage{
 	
-	private final List<String> partitionPaths;
+	private final String partitionPath;
 	
-	public ReadPartition(final ActorRef workerRef, 
-			final List<String> paths) {
+	public ReadPartition(final ActorRef workerRef, final String path) {
 		super(workerRef);
-		this.partitionPaths = paths;
+		this.partitionPath = path;
 	}
 
-	public List<String> getPartitionPaths() {
-		return partitionPaths;
+	public String getPartitionPath() {
+		return partitionPath;
 	}
 
 }

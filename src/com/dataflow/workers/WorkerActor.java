@@ -1,36 +1,26 @@
 package com.dataflow.workers;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
 
-import com.dataflow.elements.Element;
 import com.dataflow.messages.MapWorkComplete;
 import com.dataflow.messages.ReadPartition;
 import com.dataflow.messages.ReduceWorkToBeDone;
 import com.dataflow.messages.WorkComplete;
 import com.dataflow.messages.WorkMessage;
 import com.dataflow.messages.WorkToBeDone;
+import com.dataflow.scheduler.CrossProductStage;
 import com.dataflow.scheduler.PointWiseStage;
 import com.dataflow.scheduler.Stage;
 import com.dataflow.utils.Constants;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.UntypedActor;
-import akka.dispatch.Futures;
 import akka.japi.Procedure;
-import akka.pattern.Patterns;
-import akka.util.Timeout;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
+import akka.util.ByteString;
 
 public class WorkerActor extends UntypedActor{
 	
@@ -40,7 +30,6 @@ public class WorkerActor extends UntypedActor{
 	
 	private final ActorRef deamonActor;
 	private final ActorRef manager;
-	private final ActorSystem system = getContext().system();
 	
 	public WorkerActor(ActorRef deamonActor) {
 		this.deamonActor = deamonActor;
@@ -86,35 +75,22 @@ public class WorkerActor extends UntypedActor{
 	
 	public void handle(ReduceWorkToBeDone workToDo) throws Exception {
 		Stage stage = workToDo.getStage();
-		Map<ActorRef, List<String>> mappers = workToDo.getActorPathMapping();
-		List<Future<Object>> futures = new ArrayList<>();
-		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
-		mappers.forEach((mapper, partitionPaths)->futures.add(Patterns
-				.ask(mapper, new ReadPartition(getSelf(), partitionPaths),
-						timeout)));
-		Await.result(Futures.sequence(futures, system.dispatcher()), 
-				timeout.duration());
-		
-		
+		stage.run();
 		WorkComplete complete = null;
+		if(stage instanceof CrossProductStage) {
+			
+		}
 		getSender().tell(complete, deamonActor);
 		manager.tell(WorkerState.IDLE, getSelf());
 		getContext().unbecome();
 	}
 	
 	public void handle(ReadPartition workToDo) throws Exception {
-		List<String> partitionPaths = workToDo.getPartitionPaths();
-		for(String path : partitionPaths){
-			FileInputStream fis = new FileInputStream (new File(path));
-			try(ObjectInputStream stream = new ObjectInputStream(fis)) {
-				Element ele;
-				while((ele = (Element)stream.readObject()) != null) {
-					
-				}
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
+		String partitionPath = workToDo.getPartitionPath();
+		byte[] data = Files.readAllBytes(Paths.get(partitionPath));
+		ByteString byteString = ByteString.fromArray(data);
+		
+		getSender().tell(byteString, getSelf());
 	}
 	
 }

@@ -66,7 +66,7 @@ public class CrossProductStage extends Stage {
 	}
 	
 	
-	public void setStage(ElementList e) {
+	public void setElementList(ElementList e) {
 		this.elementList = e;
 	}
 
