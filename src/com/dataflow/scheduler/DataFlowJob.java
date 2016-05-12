@@ -121,7 +121,7 @@ public class DataFlowJob {
 	 */
 	private Stage getStage(final AbstractVertex rootVertex, final VertexList vList, final Stage stage) {
 		if (rootVertex.getVertexType() == VertexType.SHUFFLE)
-			manageShuffle(rootVertex, vList, stage);
+			return manageShuffle(rootVertex, vList, stage);
 		vList.add(rootVertex);
 
 		for (Edge e : rootVertex.getOutput()) {
@@ -141,7 +141,6 @@ public class DataFlowJob {
 		if (!visited) {
 			createVertexListAndToQueue(rootVertex);
 		}
-		vList.remove(rootVertex);
 		return stage;
 	}
 
