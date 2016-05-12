@@ -1,6 +1,7 @@
 package com.dataflow.scheduler;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -20,6 +21,7 @@ public abstract class Stage implements Serializable {
 	protected int stageIncr;
 	protected int stageID;
 	protected int partitionCount;
+	protected Map<Integer, String> partitionFiles;
 	
 	protected String taskId = UUID.randomUUID().toString();
 	
@@ -64,4 +66,13 @@ public abstract class Stage implements Serializable {
 	public void setPartitionCount(int count) {
 		this.partitionCount = count;
 	}
+
+	public Map<Integer, String> getPartitionFiles() {
+		return partitionFiles;
+	}
+
+	public void setPartitionFiles(Map<Integer, String> partitionFiles) {
+		this.partitionFiles = partitionFiles;
+	}
+	
 }

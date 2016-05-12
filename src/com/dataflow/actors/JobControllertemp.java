@@ -4,11 +4,15 @@ import static com.dataflow.utils.Constants.HANDLER;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 import com.dataflow.messages.MapWorkComplete;
+import com.dataflow.messages.ReduceWorkToBeDone;
 import com.dataflow.messages.RegisterWorker;
 import com.dataflow.messages.WorkIsReady;
 import com.dataflow.messages.WorkRequest;
@@ -16,6 +20,7 @@ import com.dataflow.messages.WorkToBeDone;
 import com.dataflow.scheduler.CrossProductStage;
 import com.dataflow.scheduler.PointWiseStage;
 import com.dataflow.scheduler.Stage;
+import com.dataflow.utils.IntermediatePathList;
 import com.dataflow.utils.PointWiseMap;
 import com.dataflow.utils.WorkStatus;
 
@@ -57,16 +62,26 @@ public class JobControllertemp extends UntypedActor {
 		if (workStatus.hasWork()) {
 			System.out.println("Received a work Request Message..");
 			final ActorRef ref = work.getActorRef();
-			WorkToBeDone toBeDone = (WorkToBeDone) MethodUtils.invokeMethod(this, "getWorkToBeDone",
-					workStatus.next(), ref);
-			//if (toBeDone.isPresent()) {
-				workStatus = workStatus.getInstance(workStatus, toBeDone);
+			Object obj = MethodUtils.invokeMethod(this, "getWorkToBeDone", workStatus.next(),ref);
+			if(obj instanceof WorkToBeDone){
+				WorkToBeDone toBeDone = (WorkToBeDone) obj;
 				String taskId = toBeDone.getStage().getTaskId();
-				workers.put(ref, new WorkerState(getSender(), new Busy(taskId)));
-				System.out.println(ref + " Sending a work to be done message..");
-				ref.tell(toBeDone, getSelf());
-			//}
+				sendMessage(ref, toBeDone, taskId);
+				
+			}else{
+				ReduceWorkToBeDone toBeDone = (ReduceWorkToBeDone) obj;
+				String taskId = toBeDone.getStage().getTaskId();
+				sendMessage(ref, toBeDone, taskId);
+			}
+			
 		}
+	}
+	
+	private void sendMessage(ActorRef ref, Object toBeDone, String taskId) throws Exception{
+		workStatus = workStatus.getInstance(workStatus, toBeDone);
+		workers.put(ref, new WorkerState(getSender(), new Busy(taskId)));
+		System.out.println(ref + " Sending a work to be done message..");
+		ref.tell(toBeDone, getSelf());
 	}
 
 	/**
@@ -82,10 +97,18 @@ public class JobControllertemp extends UntypedActor {
 		return new WorkToBeDone(ref, stage, "");
 	}
 
-//	public WorkToBeDone getWorkToBeDone(CrossProductStage stage, ActorRef ref) {
-//			return new WorkToBeDone(ref, stage, "");
-//		return Optional.empty();
-//	}
+	public Optional<ReduceWorkToBeDone> getWorkToBeDone(CrossProductStage stage, ActorRef ref) {
+		if(workStatus.getMapperCount() != 0){
+			return Optional.empty();
+		}
+		Optional<Map<ActorRef, List<String>>> map = completedPointWiseTasks.getMapping();
+		if(map.isPresent()){
+			return Optional.of(new ReduceWorkToBeDone(ref, stage, map.get()));
+		}
+		// Shouldn't hit this scenario in the current setup.
+		completedPointWiseTasks.cleanUp(completedPointWiseTasks);
+		return Optional.empty();
+	}
 
 	/**
 	 * Handler for the map work completed message. Worker sends a path and its
@@ -97,8 +120,8 @@ public class JobControllertemp extends UntypedActor {
 		System.out.println("Map Work Complete...");
 		final ActorRef ref = work.getActorRef();
 		System.out.println(ref);
-		final String path = work.getPath();
-		System.out.println(work.getPath());
+		final Map<Integer, String> path = work.getPaths();
+		System.out.println(path);
 		workers.put(ref, new WorkerState(ref, Idle.instance));
 		completedPointWiseTasks.addCompleted(ref, path);
 		System.out.println(completedPointWiseTasks);
@@ -116,12 +139,10 @@ public class JobControllertemp extends UntypedActor {
 	 * @param stage
 	 */
 	public void handle(PointWiseStage stage) {
-		// final String jobID = stage.getJobId();
 		System.out.println("Adding Point wise stage..");
 		try {
 			workStatus = workStatus.getInstance(workStatus, stage);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		notifyWorkers();

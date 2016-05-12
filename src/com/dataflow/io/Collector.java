@@ -52,6 +52,7 @@ public class Collector<T extends Element> implements Iterable<IntermediateRecord
 		for (IntermediateRecord<T> record : buffer) {
 			out.writeObject(record.getElement());
 		}
+		out.writeObject(null);
 		out.flush();
 		out.close();
 		buffer.clear();

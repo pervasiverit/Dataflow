@@ -10,7 +10,11 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
@@ -19,6 +23,7 @@ import com.dataflow.elements.Element;
 import com.dataflow.io.Collector;
 import com.dataflow.io.InputFormat;
 import com.dataflow.io.IntermediateRecord;
+import com.dataflow.partitioner.HashPartitioner;
 import com.dataflow.partitioner.Partitioner;
 import com.dataflow.vertex.AbstractVertex;
 
@@ -67,7 +72,6 @@ public class PointWiseStage extends Stage {
 			}
 
 		}
-		String path = collector.finish();
 
 		String collectedFile = collector.finish();
 		Optional<Partitioner> ptnr = createPartitionerInstance();
@@ -107,7 +111,9 @@ public class PointWiseStage extends Stage {
 		try {
 			ptnr = partitioner.newInstance();
 		} catch (Exception e) {
-			System.err.println("Error Creating Partintioner instance");
+			System.err.println("Error creating partitioner instance, using "
+					+ "default Hash Partitioner");
+			ptnr = new HashPartitioner();
 		}
 		optional = Optional.ofNullable(ptnr);
 		return optional;
@@ -124,20 +130,37 @@ public class PointWiseStage extends Stage {
 
 	private void partition(String filePath, Partitioner ptnr) throws IOException {
 		Path path = Paths.get(filePath);
-		String partitionPath = path.getParent().toString() + File.separator + "partition_";
-		FileInputStream fis = new FileInputStream(path.toFile());
-		ObjectInputStream stream = new ObjectInputStream(fis);
-		Element ele;
-		try {
-			while ((ele = (Element) stream.readObject()) != null) {
-				FileOutputStream fos = new FileOutputStream(
-						new File(partitionPath + ptnr.partitionLogic(ele, partitionCount)));
-				ObjectOutputStream output = new ObjectOutputStream(fos);
-				output.writeObject(ele);
-				output.close();
+		String partitionPath = path.getParent().toString() + File.separator
+				+ "partition_";
+		FileInputStream fis = new FileInputStream (path.toFile());
+		
+		List<ObjectOutputStream> partitionOuts = new ArrayList<>();
+		Map<Integer, String> partitionFiles = new HashMap<>();
+		
+		ObjectOutputStream output;
+		for(int i=0; i<partitionCount; i++){
+			partitionFiles.put(i, partitionPath + i);
+			output = new ObjectOutputStream(new FileOutputStream
+					(new File(partitionPath + i)));
+			partitionOuts.add(output);
+		}
+		
+		try(ObjectInputStream stream = new ObjectInputStream(fis)) {
+			Element ele;
+			while((ele = (Element)stream.readObject()) != null) {
+				output = partitionOuts	
+							.get(ptnr.partitionLogic(ele, partitionCount));
+				output.writeObject(ele.getElement());
 			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+		
+		setPartitionFiles(partitionFiles);
+		for(ObjectOutputStream out : partitionOuts)
+			out.close();
 	}
+	
 }
+
+

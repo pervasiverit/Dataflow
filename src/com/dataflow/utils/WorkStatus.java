@@ -13,6 +13,8 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import com.dataflow.messages.WorkComplete;
 import com.dataflow.messages.WorkMessage;
 import com.dataflow.messages.WorkToBeDone;
+import com.dataflow.scheduler.CrossProductStage;
+import com.dataflow.scheduler.PointWiseStage;
 import com.dataflow.scheduler.Stage;
 
 import akka.actor.ActorRef;
@@ -29,7 +31,7 @@ public class WorkStatus {
 	private HashSet<String> acceptedWorkIds = new HashSet<>();
 
 	// completed work ids.
-	private HashSet<String> comepletedWorkIds = new HashSet<>();
+	private HashSet<String> completedWorkIds = new HashSet<>();
 
 	public boolean hasWork() {
 		return !pendingWork.isEmpty();
@@ -41,6 +43,12 @@ public class WorkStatus {
 
 	public WorkStatus() {
 
+	}
+	
+	public int getMapperCount(){
+		return (int)workInProgress.entrySet().stream()
+							   .filter(e -> e.getValue() instanceof PointWiseStage)
+							   .count();
 	}
 	
 	public int getWorkInProgressCount(){
@@ -61,18 +69,18 @@ public class WorkStatus {
 		tmp_workInProgress.put(workToBeDone.getActorRef(), stage);
 		workInProgress = tmp_workInProgress;
 		acceptedWorkIds = new HashSet<String>(currentWorkState.acceptedWorkIds);
-		comepletedWorkIds = new HashSet<String>(currentWorkState.comepletedWorkIds);
+		completedWorkIds = new HashSet<String>(currentWorkState.completedWorkIds);
 		pendingWork = tmp_pendingWork;
 	}
 
 	public WorkStatus(WorkStatus curr, WorkComplete message) {
 		Map<ActorRef, Stage> tmp_workInProgress = new HashMap<>(curr.workInProgress);
-		HashSet<String> tmp_doneWorkIds = new HashSet<String>(curr.comepletedWorkIds);
+		HashSet<String> tmp_doneWorkIds = new HashSet<String>(curr.completedWorkIds);
 		tmp_workInProgress.remove(message.getTaskId());
 		tmp_doneWorkIds.add(message.getTaskId());
 		workInProgress = tmp_workInProgress;
 		acceptedWorkIds = new HashSet<String>(curr.acceptedWorkIds);
-		comepletedWorkIds = tmp_doneWorkIds;
+		completedWorkIds = tmp_doneWorkIds;
 		pendingWork = new ConcurrentLinkedDeque<>(curr.pendingWork);
 	}
 
@@ -83,8 +91,33 @@ public class WorkStatus {
 		tmp_acceptedWorkIds.add(workAccepted.getTaskId());
 		workInProgress = new HashMap<>(curr.workInProgress);
 		acceptedWorkIds = tmp_acceptedWorkIds;
-		comepletedWorkIds = new HashSet<String>(curr.comepletedWorkIds);
+		completedWorkIds = new HashSet<String>(curr.completedWorkIds);
 		pendingWork = tmp_pendingWork;
+	}
+	
+	
+	public static void main(String[] args) throws Exception {
+		WorkStatus status = new WorkStatus();
+		PointWiseStage stage = new PointWiseStage(null, null, "as", null);
+		PointWiseStage stage1 = new PointWiseStage(null, null, "a1s", null);
+		PointWiseStage stage2 = new PointWiseStage(null, null, "as2", null);
+		PointWiseStage stage3 = new PointWiseStage(null, null, "as3", null);
+		CrossProductStage stage4 = new CrossProductStage(null, "a", null);
+		status = status.getInstance(status, stage);
+		status = status.getInstance(status, stage1);
+		status = status.getInstance(status, stage2);
+		status = status.getInstance(status, stage3);
+		status = status.getInstance(status, stage4);
+		status = status.getInstance(status, new WorkToBeDone(null, stage, "a"));
+		status = status.getInstance(status, new WorkToBeDone(null, stage1, "a"));
+		status = status.getInstance(status, new WorkToBeDone(null, stage2, "a"));
+		status = status.getInstance(status, new WorkToBeDone(null, stage3, "a"));
+		status = status.getInstance(status, new WorkComplete(null, null, "a"));
+		status = status.getInstance(status, new WorkComplete(null, null, "a"));
+		status = status.getInstance(status, new WorkComplete(null, null, "a"));
+		System.out.println(status.getMapperCount() == 1);
+		
+		
 	}
 
 }

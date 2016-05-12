@@ -1,5 +1,6 @@
 package com.dataflow.actors;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -54,8 +55,8 @@ public class WorkerExec extends UntypedActor {
 	private final Procedure<Object> working = new Procedure<Object>() {
 		public void apply(Object message) {
 			if (message instanceof WorkComplete) {
-				String path = ((WorkComplete) message).getPath();
-				sendToMaster(new WorkComplete(getSelf(), path, path));
+				Map<Integer,String> path = ((WorkComplete) message).getPaths();
+				sendToMaster(new WorkComplete(getSelf(), path, ""));
 				getContext().become(idle);
 			} else if (message instanceof WorkToBeDone) {
 				System.out.println("Working...");
