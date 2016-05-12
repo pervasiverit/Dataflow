@@ -22,7 +22,7 @@ public class TextFileOutputFormat implements OutputFormat {
 
 	@Override
 	public void open() throws IOException {
-		stream = new FileOutputStream(file);
+		stream = new FileOutputStream(file.getAbsolutePath()+File.pathSeparator+"part");
 		writer = new PrintWriter(stream);
 	}
 

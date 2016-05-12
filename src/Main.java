@@ -15,7 +15,7 @@ public class Main {
 		job.setInputFormat(TextFileInputFormat.class);
 		job.setOutputFormat(TextFileOutputFormat.class);
 		job.setInputPath("common.txt");
-		job.setOutputPath("out.txt");
+		job.setOutputPath("sumout");
 		
 		DataflowBuilder builder = new DataflowBuilder();
 		VertexList v1 = builder.createVertexSet(Hello.class, 2);
