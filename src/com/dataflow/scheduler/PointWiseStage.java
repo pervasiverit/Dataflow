@@ -75,7 +75,7 @@ public class PointWiseStage extends Stage {
 
 		String collectedFile = collector.finish();
 		Optional<Partitioner> ptnr = createPartitionerInstance();
-		if (ptnr.isPresent()) {
+		if (ptnr.isPresent() && partitionCount > 0) {
 			partition(collectedFile, ptnr.get());
 		}
 	}
