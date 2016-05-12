@@ -66,7 +66,6 @@ public class PointWiseStage extends Stage {
 		for (int i = 0; i < size; ++i) {
 			mapSide = queue.poll();
 			List<IntermediateRecord<Element>> buffer = collector.getBuffer();
-			buffer.stream().forEach(e -> System.out.println(e.getElement().getElement().toString()));
 			collector.clearBuffer();
 			for (IntermediateRecord<Element> element : buffer) {
 				mapSide.execute(element.getElement(), collector);
@@ -149,8 +148,10 @@ public class PointWiseStage extends Stage {
 		try(ObjectInputStream stream = new ObjectInputStream(fis)) {
 			Element ele;
 			while((ele = (Element)stream.readObject()) != null) {
+				
 				output = partitionOuts	
 							.get(ptnr.partitionLogic(ele, partitionCount));
+				
 				output.writeObject(ele.getElement());
 			}
 		} catch (ClassNotFoundException e) {

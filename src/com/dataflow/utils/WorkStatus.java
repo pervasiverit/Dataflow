@@ -76,12 +76,13 @@ public class WorkStatus {
 	public WorkStatus(WorkStatus curr, WorkComplete message) {
 		Map<ActorRef, Stage> tmp_workInProgress = new HashMap<>(curr.workInProgress);
 		HashSet<String> tmp_doneWorkIds = new HashSet<String>(curr.completedWorkIds);
-		tmp_workInProgress.remove(message.getTaskId());
+		tmp_workInProgress.remove(message.getActorRef());
 		tmp_doneWorkIds.add(message.getTaskId());
 		workInProgress = tmp_workInProgress;
 		acceptedWorkIds = new HashSet<String>(curr.acceptedWorkIds);
 		completedWorkIds = tmp_doneWorkIds;
 		pendingWork = new ConcurrentLinkedDeque<>(curr.pendingWork);
+		System.out.println(workInProgress);
 	}
 
 	public WorkStatus(WorkStatus curr, Stage workAccepted) {
@@ -108,13 +109,14 @@ public class WorkStatus {
 		status = status.getInstance(status, stage2);
 		status = status.getInstance(status, stage3);
 		status = status.getInstance(status, stage4);
-		status = status.getInstance(status, new WorkToBeDone(null, stage, "a"));
-		status = status.getInstance(status, new WorkToBeDone(null, stage1, "a"));
-		status = status.getInstance(status, new WorkToBeDone(null, stage2, "a"));
-		status = status.getInstance(status, new WorkToBeDone(null, stage3, "a"));
-		status = status.getInstance(status, new WorkComplete(null, null, "a"));
-		status = status.getInstance(status, new WorkComplete(null, null, "a"));
-		status = status.getInstance(status, new WorkComplete(null, null, "a"));
+		status = status.getInstance(status, new WorkToBeDone(ActorRef.noSender(), stage, "a"));
+		status = status.getInstance(status, new WorkToBeDone(ActorRef.noSender(), stage1, "a"));
+		status = status.getInstance(status, new WorkToBeDone(ActorRef.noSender(), stage2, "a"));
+		status = status.getInstance(status, new WorkToBeDone(ActorRef.noSender(), stage3, "a"));
+		status = status.getInstance(status, new WorkComplete(ActorRef.noSender(), null, "a"));
+		status = status.getInstance(status, new WorkComplete(ActorRef.noSender(), null, "a"));
+		status = status.getInstance(status, new WorkComplete(ActorRef.noSender(), null, "a"));
+		status = status.getInstance(status, new WorkComplete(ActorRef.noSender(), null, "a"));
 		System.out.println(status.getMapperCount() == 1);
 		
 		
