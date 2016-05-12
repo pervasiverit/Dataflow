@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
+import com.dataflow.messages.ReduceWorkToBeDone;
 import com.dataflow.messages.WorkComplete;
 import com.dataflow.messages.WorkMessage;
 import com.dataflow.messages.WorkToBeDone;
@@ -60,6 +61,21 @@ public class WorkStatus {
 	}
 
 	public WorkStatus(WorkStatus currentWorkState, WorkToBeDone workToBeDone) {
+		ConcurrentLinkedDeque<Stage> tmp_pendingWork = new ConcurrentLinkedDeque<>(currentWorkState.pendingWork);
+		Map<ActorRef, Stage> tmp_workInProgress = new HashMap<>(currentWorkState.workInProgress);
+		Stage stage = tmp_pendingWork.removeFirst();
+		if (!stage.getTaskId().equals(workToBeDone.getStage().getTaskId())) {
+			throw new IllegalArgumentException("Error expected  ");
+		}
+		tmp_workInProgress.put(workToBeDone.getActorRef(), stage);
+		workInProgress = tmp_workInProgress;
+		acceptedWorkIds = new HashSet<String>(currentWorkState.acceptedWorkIds);
+		completedWorkIds = new HashSet<String>(currentWorkState.completedWorkIds);
+		pendingWork = tmp_pendingWork;
+	}
+	
+	
+	public WorkStatus(WorkStatus currentWorkState, ReduceWorkToBeDone workToBeDone) {
 		ConcurrentLinkedDeque<Stage> tmp_pendingWork = new ConcurrentLinkedDeque<>(currentWorkState.pendingWork);
 		Map<ActorRef, Stage> tmp_workInProgress = new HashMap<>(currentWorkState.workInProgress);
 		Stage stage = tmp_pendingWork.removeFirst();

@@ -152,7 +152,7 @@ public class PointWiseStage extends Stage {
 				output = partitionOuts	
 							.get(ptnr.partitionLogic(ele, partitionCount));
 				
-				output.writeObject(ele.getElement());
+				output.writeObject(ele);
 			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
