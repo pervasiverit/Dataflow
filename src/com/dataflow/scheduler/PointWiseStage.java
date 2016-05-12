@@ -148,7 +148,6 @@ public class PointWiseStage extends Stage {
 		try(ObjectInputStream stream = new ObjectInputStream(fis)) {
 			Element ele;
 			while((ele = (Element)stream.readObject()) != null) {
-				
 				output = partitionOuts	
 							.get(ptnr.partitionLogic(ele, partitionCount));
 				

@@ -1,5 +1,7 @@
 package com.dataflow.workers;
 
+import java.util.Optional;
+
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 import com.dataflow.messages.ConnectionComplete;
@@ -13,6 +15,8 @@ import com.dataflow.utils.Constants;
 import com.dataflow.workers.WorkerActor.WorkerState;
 
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Cancellable;
 import akka.actor.OneForOneStrategy;
 import akka.actor.Props;
 import akka.actor.SupervisorStrategy;
@@ -27,7 +31,9 @@ public class WorkerManager extends UntypedActor{
 
 	private RemoteActorRef nameServer;
 	private ActorRef workerActor;
+	private Optional<Cancellable> notifer;
 	private final ActorRef deamonActor = getContext().parent();
+	private final ActorSystem system = getContext().system();
 	
 	public WorkerManager() {
 		this.workerActor = createWorkerActor();
@@ -87,9 +93,14 @@ public class WorkerManager extends UntypedActor{
 	}
 	
 	public void handle(WorkerState state) {
-		if(state == WorkerState.IDLE){
+		if(state == WorkerState.IDLE) {
 			WorkRequest workReq = new WorkRequest(deamonActor);
 			nameServer.tell(workReq, getSelf());
+			notifer = Optional.ofNullable(system.scheduler().schedule(Duration.
+					create(3, "seconds"), Duration.create(5, "seconds"), 
+					nameServer, workReq, system.dispatcher(), getSelf()));
+		} else {
+			notifer.ifPresent((n)->n.cancel());
 		}
 	}
 	
