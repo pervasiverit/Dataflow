@@ -13,6 +13,7 @@ import com.dataflow.elements.Element;
 import com.dataflow.io.Collector;
 import com.dataflow.io.IntermediateRecord;
 import com.dataflow.io.OutputFormat;
+import com.dataflow.utils.ElementList;
 import com.dataflow.vertex.AbstractVertex;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -21,12 +22,12 @@ public class CrossProductStage extends Stage {
 	final private String tempPath = "tmp" + File.separator + getJobId() + File.separator + getTaskId();
 	private final Class<? extends OutputFormat> outputFormat;
 	private final File file;
-	
+
 	private File tempFile;
 
-	public CrossProductStage(final Class<? extends OutputFormat> outputFormat, 
-							 final String jobId, 
-							 final File outFile) {
+	private ElementList elementList;
+
+	public CrossProductStage(final Class<? extends OutputFormat> outputFormat, final String jobId, final File outFile) {
 		super(jobId);
 		this.outputFormat = outputFormat;
 		this.file = outFile;
@@ -36,18 +37,12 @@ public class CrossProductStage extends Stage {
 
 	@Override
 	public void run() throws IOException {
-		ObjectInputStream stream = new ObjectInputStream(new FileInputStream(tempFile));
-		IntermediateRecord intermediateRecord = null;
+		
 		Collector<Element> collector = new Collector<>(tempPath);
 		AbstractVertex abv = queue.poll();
-		
-		try {
-			while((intermediateRecord = (IntermediateRecord) stream.readObject())!=null){
-				abv.execute(intermediateRecord.getElement(), collector);
-			}
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Class not found exception..");
-		}
+
+		for(Element element : elementList)
+			abv.execute(element, collector);
 		
 		final int size = queue.size();
 		FileUtils.forceMkdir(file);
@@ -70,6 +65,11 @@ public class CrossProductStage extends Stage {
 		format.close();
 	}
 	
+	
+	public void setStage(ElementList e) {
+		this.elementList = e;
+	}
+
 	private OutputFormat createInstance() {
 		Constructor<? extends OutputFormat> cons;
 		OutputFormat inf = null;
