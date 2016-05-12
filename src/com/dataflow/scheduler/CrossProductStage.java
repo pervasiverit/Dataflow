@@ -41,9 +41,10 @@ public class CrossProductStage extends Stage {
 		Collector<Element> collector = new Collector<>(tempPath);
 		AbstractVertex abv = queue.poll();
 
-		for(Element element : elementList)
+		for(Element element : elementList){
 			abv.execute(element, collector);
-		
+		}
+		abv.close(collector);
 		final int size = queue.size();
 		FileUtils.forceMkdir(file);
 		
