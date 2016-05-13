@@ -48,18 +48,21 @@ public class ExtendedEuclidean {
 	
 	public static void main(String[] args) {
 		ExtendedEuclidean extEud = new ExtendedEuclidean();
-		BigInteger[] arr = new BigInteger[5];
+		BigInteger[] arr = new BigInteger[6];
 		arr[0] = BigInteger.valueOf(4);
 		arr[1] = BigInteger.valueOf(5);
 		arr[2] = BigInteger.valueOf(600);
 		arr[3] = new BigInteger("1000000000000");
 		arr[4] = new BigInteger("10000000000000000000000000");
-		BigInteger[] arr1 = new BigInteger[5];
+		arr[5] = new BigInteger("100132121321312312321321434254243243242532");
+		
+		BigInteger[] arr1 = new BigInteger[6];
 		arr1[0] = BigInteger.valueOf(2);
 		arr1[1] = BigInteger.valueOf(3);
 		arr1[2] = BigInteger.valueOf(7);
 		arr1[3] = BigInteger.valueOf(11);
 		arr1[4] = BigInteger.valueOf(13);
+		arr1[5] = BigInteger.valueOf(17);
 		
 		System.out.println(extEud.chineseRemainder(arr, arr1));
 		
