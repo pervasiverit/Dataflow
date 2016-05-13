@@ -56,6 +56,10 @@ public class PointWiseStage extends Stage {
 			infInstance.open();
 			String line = "";
 			AbstractVertex abs = queue.poll();
+			try {
+				abs.start(collector);
+			} catch (Exception e) {
+			}
 			while ((line = (String) infInstance.next()) != null) {
 				abs.execute(line, collector);
 			}
@@ -65,6 +69,10 @@ public class PointWiseStage extends Stage {
 		AbstractVertex mapSide = null;
 		for (int i = 0; i < size; ++i) {
 			mapSide = queue.poll();
+			try {
+				mapSide.start(collector);
+			} catch (Exception e) {
+			}
 			List<IntermediateRecord<Element>> buffer = collector.getBuffer();
 			collector.clearBuffer();
 			for (IntermediateRecord<Element> element : buffer) {

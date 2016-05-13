@@ -12,6 +12,7 @@ public class TransformVertex extends AbstractVertex<String>{
 
 	private long multiplied = 0;
 	
+	@Override
 	public void start(Collector collector) throws Exception{
 		
 		multiplied = Files.lines(Paths.get("CRT"))

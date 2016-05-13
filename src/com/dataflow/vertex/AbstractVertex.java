@@ -76,7 +76,7 @@ public abstract class AbstractVertex<T> implements Serializable {
 		
 	}
 	
-	public void start(){
+	public void start(Collector collector) throws Exception{
 		
 	}
 	
