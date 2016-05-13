@@ -19,9 +19,10 @@ public class CRTVertex extends AbstractVertex<TripleElement>{
 		
 		BigInteger product = B.multiply(C);
 		product = product.multiply(X);
-		product = product.mod(triple.getThird());
-		BigIntegerElement productElement = new BigIntegerElement(product);
-		collector.add(productElement);
+		triple = new Triple(product, triple.getThird(), BigInteger.ONE);
+		
+		TripleElement tripleElement = new TripleElement(triple);
+		collector.add(tripleElement);
 	}
 
 }
