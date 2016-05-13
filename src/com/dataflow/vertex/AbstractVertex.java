@@ -60,7 +60,6 @@ public abstract class AbstractVertex<T> implements Serializable {
 
 	public void connectOutput(final int remotePort, AbstractVertex outputVertex, final int localPort,
 			ConnectorType type) {
-
 		Edge edge = new Edge(outputVertex, remotePort, type);
 		outputEdges.setEdge(localPort, edge);
 		edge = new Edge(this, localPort, type);
@@ -74,6 +73,10 @@ public abstract class AbstractVertex<T> implements Serializable {
 	}
 	
 	public void close(Collector collector){
+		
+	}
+	
+	public void start(){
 		
 	}
 	
