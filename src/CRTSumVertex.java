@@ -11,6 +11,7 @@ public class CRTSumVertex extends AbstractVertex<BigIntegerElement>{
 	@Override
 	public void execute(BigIntegerElement element, Collector collector)
 			throws IOException {
+		System.out.println(element.getElement());
 		CRT.add(element.getElement());
 	}
 
