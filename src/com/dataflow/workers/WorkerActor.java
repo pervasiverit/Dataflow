@@ -25,6 +25,15 @@ import akka.actor.UntypedActor;
 import akka.japi.Procedure;
 import akka.util.ByteString;
 
+/***
+ * Worker Actor class - executes the vertices present in the stage.
+ * executes both PointWiseStage(Map) and CrossProductStage(Reduce).
+ * reads the partition file created during map phase and sends it
+ * worker actor executing Reduce phase(CrossProductStage) 
+ * 
+ * @author KanthKumar
+ *
+ */
 public class WorkerActor extends UntypedActor{
 	
 	static public enum WorkerState{

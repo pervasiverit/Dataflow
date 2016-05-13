@@ -1,6 +1,5 @@
 package com.dataflow.nameserver;
 
-
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.Predicate;
@@ -23,6 +22,15 @@ import akka.remote.RemoteActorRef;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+/**
+ * NameServer Actor class - receives work request and heart beat 
+ * messages from workers.
+ * Forwards heart beat to cluster manager and work request to job
+ * controller
+ * 
+ * @author KanthKumar
+ *
+ */
 public class NameServerActor extends UntypedActor{
 
 	private final ActorSelection jobManager;
@@ -32,6 +40,11 @@ public class NameServerActor extends UntypedActor{
 	private final Queue<? super WorkMessage> cache;
 	private final Predicate<RemoteActorRef> connection = (ref) -> ref != null;
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param config name server config
+	 */
 	public NameServerActor(Config config) {
 		this.cache = new LinkedList<>();
 		this.jobManager = system.actorSelection

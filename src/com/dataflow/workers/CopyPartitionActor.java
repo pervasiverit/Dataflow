@@ -30,11 +30,24 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+/**
+ * Copy Partition Actor class - started by worker manager to read the
+ * partition files specified in stage before worker executes the Cross-
+ * ProductStage (Reduce phase)
+ * 
+ * @author KanthKumar
+ *
+ */
 public class CopyPartitionActor extends UntypedActor {
 
 	private final ActorRef workerActor;
 	private final ActorSystem system = getContext().system();
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param ref worker actor
+	 */
 	public CopyPartitionActor(ActorRef ref) {
 		this.workerActor = ref;
 	}
@@ -45,6 +58,13 @@ public class CopyPartitionActor extends UntypedActor {
 		MethodUtils.invokeExactMethod(this, Constants.HANDLER, msg);
 	}
 	
+	/**
+	 * Get the required partition files, process and set the element 
+	 * list to the stage.
+	 * 
+	 * @param workToDo
+	 * @throws Exception
+	 */
 	public void handle(ReduceWorkToBeDone workToDo) throws Exception {
 		Map<ActorRef, List<String>> mappers = workToDo.getActorPathMapping();
 		List<Future<Object>> futures = new ArrayList<>();
@@ -62,6 +82,14 @@ public class CopyPartitionActor extends UntypedActor {
 		workerActor.forward(workToDo, getContext());
 	}
 
+	/**
+	 * Process all the partition files sent as ByteString from workers
+	 * which executed PointWiseStage (Map)
+	 * 
+	 * @param iterable list of partition files
+	 * @return Element List
+	 * @throws Exception
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private ElementList process(Iterable<Object> iterable) throws Exception {
 		Iterator<Object> it = iterable.iterator();

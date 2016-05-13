@@ -1,20 +1,26 @@
 package com.dataflow.workers;
 
 import com.dataflow.messages.ConnectionComplete;
-import com.dataflow.messages.ReadPartition;
-import com.dataflow.messages.ReduceWorkToBeDone;
-import com.dataflow.messages.WorkIsReady;
 import com.dataflow.messages.WorkMessage;
-import com.dataflow.messages.WorkToBeDone;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 
+/**
+ * Daemon Actor class, receives and forwards the messages to manager
+ * Acts like proxy and entry point for job controller.
+ * 
+ * @author KanthKumar
+ *
+ */
 public class DaemonActor extends UntypedActor{
 	
 	private ActorRef manager;
 
+	/**
+	 * Starts the worker manager
+	 */
 	@Override
 	public void preStart() throws Exception {
 		manager = getContext().actorOf(Props.

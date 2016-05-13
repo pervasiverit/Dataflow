@@ -27,6 +27,13 @@ import akka.japi.Function;
 import akka.remote.RemoteActorRef;
 import scala.concurrent.duration.Duration;
 
+/**
+ * Worker Manager class - starts the worker actor and supervises the 
+ * same. applies supervisor strategy if worker actor gets terminated 
+ * 
+ * @author KanthKumar
+ *
+ */
 public class WorkerManager extends UntypedActor{
 
 	private RemoteActorRef nameServer;
@@ -35,6 +42,9 @@ public class WorkerManager extends UntypedActor{
 	private final ActorRef deamonActor = getContext().parent();
 	private final ActorSystem system = getContext().system();
 	
+	/**
+	 * Default constructor - starts and initializes worker actor
+	 */
 	public WorkerManager() {
 		this.workerActor = createWorkerActor();
 	}
@@ -47,6 +57,9 @@ public class WorkerManager extends UntypedActor{
 	    return worker;
 	}
 	
+	/**
+	 * Default strategy to restart the worker actor if terminates
+	 */
 	private SupervisorStrategy strategy = new OneForOneStrategy(10, 
 			Duration.create(5, "seconds"), 
 			new Function<Throwable, Directive>() {
@@ -82,6 +95,13 @@ public class WorkerManager extends UntypedActor{
 		workerActor.forward(workToDo, getContext());
 	}
 	
+	/**
+	 * Forwards the message to copy partition actor that copies the required
+	 * partition files from all remote machines specified within this message
+	 * and then forwards the same message to worker to run the stage.
+	 * 
+	 * @param workToDo reduce work type
+	 */
 	public void handle(ReduceWorkToBeDone workToDo) {
 		ActorRef copyActor = getContext().actorOf(Props
 				.create(CopyPartitionActor.class, workerActor));
@@ -92,6 +112,12 @@ public class WorkerManager extends UntypedActor{
 		workerActor.forward(workToDo, getContext());
 	}
 	
+	/**
+	 * Handles the worker state (IDLE or BUSY), schedules the notifier if
+	 * worker actor is idle otherwise cancels the notifier if scheduled 
+	 * 
+	 * @param state worker state
+	 */
 	public void handle(WorkerState state) {
 		if(state == WorkerState.IDLE) {
 			WorkRequest workReq = new WorkRequest(deamonActor);

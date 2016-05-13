@@ -19,8 +19,21 @@ import akka.remote.RemoteActorRef;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+/**
+ * Heart Beat Actor - Sends the heart beats to Name Server specifying 
+ * Node is alive.
+ * 
+ * @author KanthKumar
+ *
+ */
 public class HeartBeatActor extends UntypedActor{
 	
+	/**
+	 * Heart Beat Message
+	 * 
+	 * @author KanthKumar
+	 *
+	 */
 	static public class HBMessage implements Message {
 
 		private static final long serialVersionUID = 1L;
@@ -43,6 +56,9 @@ public class HeartBeatActor extends UntypedActor{
 		this.daemons = daemons;
 	}
 	
+	/**
+	 * Re-tries connecting to name server
+	 */
 	public void tryConnectingToNameserver(){
 		Future<ActorRef> future = nameServer.
 				resolveOne(Duration.create(5, "seconds"));
