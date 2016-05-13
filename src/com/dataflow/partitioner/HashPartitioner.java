@@ -2,6 +2,13 @@ package com.dataflow.partitioner;
 
 import com.dataflow.elements.Element;
 
+/**
+ * Hash Partitioner Class - Defaults to this partitioner if 
+ * nothing specified by the user.
+ * 
+ * @author KanthKumar
+ *
+ */
 public class HashPartitioner implements Partitioner{
 
 	private static final long serialVersionUID = 1L;
