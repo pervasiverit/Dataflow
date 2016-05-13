@@ -61,7 +61,7 @@ public class CrossProductStage extends Stage {
 		if(format !=null){
 			format.open();
 			for(Object e : collector){
-				format.write(((IntermediateRecord)e).getElement().getElement());
+				format.write(e);
 			}
 		}
 		format.close();
