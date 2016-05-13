@@ -24,7 +24,8 @@ public class TransformVertex extends AbstractVertex<String>{
 		String arr[] = line.split(",");
 		BigInteger ele1 = BigInteger.valueOf(Integer.parseInt(arr[0]));
 		BigInteger ele2 = BigInteger.valueOf(Integer.parseInt(arr[1]));
-		Triple<BigInteger, BigInteger, Long> tripleElement = new Triple<>(ele1, ele2, multiplied);
+		Triple<BigInteger, BigInteger, BigInteger> tripleElement = 
+				new Triple<>(ele1, ele2, BigInteger.valueOf(multiplied));
 		collector.add(new TripleElement(tripleElement));
 	}
 	
