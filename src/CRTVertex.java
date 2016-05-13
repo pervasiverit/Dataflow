@@ -16,7 +16,6 @@ public class CRTVertex extends AbstractVertex<TripleElement>{
 		BigInteger B = triple.getThird().divide(triple.getSecond());
 		BigInteger C = triple.getFirst();
 		BigInteger X = ExtendedEuclidean.moduloInverse(B, triple.getSecond());
-		System.out.println("B C X :"+B+"  "+C+"  "+X);
 		
 		BigInteger product = B.multiply(C);
 		product = product.multiply(X);
