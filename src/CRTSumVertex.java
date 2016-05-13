@@ -21,7 +21,7 @@ public class CRTSumVertex extends AbstractVertex<TripleElement>{
 
 	@Override
 	public void close(Collector collector) {
-		System.out.println("Chinese remainder theorem value : "+CRT.remainder(B));
+		System.out.println("Chinese remainder theorem value : "+CRT);
 		try {
 			collector.add(new BigIntegerElement(CRT));
 		} catch (IOException e) {
