@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -21,9 +22,9 @@ public class TransformVertex extends AbstractVertex<String>{
 	@Override
 	public void execute(String line, Collector collector) throws IOException {
 		String arr[] = line.split(",");
-		int ele1 = Integer.parseInt(arr[0]);
-		int ele2 = Integer.parseInt(arr[1]);
-		Triple<Integer, Integer, Long> tripleElement = new Triple<>(ele1, ele2, multiplied);
+		BigInteger ele1 = BigInteger.valueOf(Integer.parseInt(arr[0]));
+		BigInteger ele2 = BigInteger.valueOf(Integer.parseInt(arr[1]));
+		Triple<BigInteger, BigInteger, Long> tripleElement = new Triple<>(ele1, ele2, multiplied);
 		collector.add(new TripleElement(tripleElement));
 	}
 	
