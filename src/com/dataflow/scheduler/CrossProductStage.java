@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
+import com.dataflow.elements.BigIntegerElement;
 import com.dataflow.elements.Element;
 import com.dataflow.io.Collector;
 import com.dataflow.io.IntermediateRecord;
@@ -61,6 +62,7 @@ public class CrossProductStage extends Stage {
 		if(format !=null){
 			format.open();
 			for(Object e : collector){
+				System.out.println(((BigIntegerElement)e).getElement());
 				format.write(e);
 			}
 		}
