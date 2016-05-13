@@ -17,8 +17,11 @@ public class CRTVertex extends AbstractVertex<TripleElement>{
 		BigInteger C = triple.getFirst();
 		BigInteger X = ExtendedEuclidean.moduloInverse(B, triple.getSecond());
 		
-		BigIntegerElement product = new BigIntegerElement(B.multiply(C).multiply(X));
-		collector.add(product);
+		BigInteger product = B.multiply(C);
+		product = product.multiply(X);
+		product = product.mod(triple.getThird());
+		BigIntegerElement productElement = new BigIntegerElement(product);
+		collector.add(productElement);
 	}
 
 }
