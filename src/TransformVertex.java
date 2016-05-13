@@ -23,8 +23,8 @@ public class TransformVertex extends AbstractVertex<String>{
 	@Override
 	public void execute(String line, Collector collector) throws IOException {
 		String arr[] = line.split(",");
-		BigInteger ele1 = BigInteger.valueOf(Integer.parseInt(arr[0]));
-		BigInteger ele2 = BigInteger.valueOf(Integer.parseInt(arr[1]));
+		BigInteger ele1 = new BigInteger(arr[0]);
+		BigInteger ele2 = new BigInteger(arr[1]);
 		Triple<BigInteger, BigInteger, BigInteger> tripleElement = 
 				new Triple<>(ele1, ele2, BigInteger.valueOf(multiplied));
 		collector.add(new TripleElement(tripleElement));

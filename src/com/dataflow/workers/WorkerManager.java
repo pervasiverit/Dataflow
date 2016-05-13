@@ -38,7 +38,7 @@ public class WorkerManager extends UntypedActor{
 
 	private RemoteActorRef nameServer;
 	private ActorRef workerActor;
-	private Optional<Cancellable> notifer;
+	private Cancellable notifer;
 	private final ActorRef deamonActor = getContext().parent();
 	private final ActorSystem system = getContext().system();
 	
@@ -122,11 +122,12 @@ public class WorkerManager extends UntypedActor{
 		if(state == WorkerState.IDLE) {
 			WorkRequest workReq = new WorkRequest(deamonActor);
 			nameServer.tell(workReq, getSelf());
-			notifer = Optional.ofNullable(system.scheduler().schedule(Duration.
+			notifer = system.scheduler().schedule(Duration.
 					create(3, "seconds"), Duration.create(5, "seconds"), 
-					nameServer, workReq, system.dispatcher(), getSelf()));
+					nameServer, workReq, system.dispatcher(), getSelf());
 		} else {
-			notifer.ifPresent((n)->n.cancel());
+			if(notifer != null)
+				notifer.cancel();
 		}
 	}
 	
