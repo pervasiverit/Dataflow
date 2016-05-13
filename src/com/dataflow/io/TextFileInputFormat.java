@@ -45,7 +45,8 @@ public class TextFileInputFormat implements InputFormat<String> {
 			}
 			if (skipFirstLine) {
 				String str = stream.readLine();
-				start += str.length();
+				System.out.println(str);
+				start += str.length() + 1;
 			}
 		}
 	}
@@ -57,7 +58,7 @@ public class TextFileInputFormat implements InputFormat<String> {
 		}
 		String line = stream.readLine();
 		if (line != null)
-			numOfRecords = numOfRecords + line.length();
+			numOfRecords = numOfRecords + line.length() + 1;
 		if(numOfRecords <= end){
 			return line != null? line : null;
 		}else{
@@ -91,7 +92,7 @@ public class TextFileInputFormat implements InputFormat<String> {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		File file = new File("common.txt");
+		File file = new File("CRT");
 		class pt extends Thread {
 			TextFileInputFormat text;
 
